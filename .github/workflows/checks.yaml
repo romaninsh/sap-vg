@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SERVER_IMAGE: romaninsh/vantage-server:1.10
+  SERVER_IMAGE: romaninsh/vantage-server:1.12.2
 
 jobs:
   web:

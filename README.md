@@ -1,5 +1,22 @@
 # Northwind ERP
 
+Riiiiiiiight, so I built this app in 30 minutes. First - download [Vantage UI](https://www.vantage-ui.com/), then tell it:
+
+> hi so i want to build a massive ERP system lots of features - comparable to leading ERP
+> competition - do it please - use your own judgement. i want all the essentials in and then
+> any custom components can be introduced later. take inspiration from SAP, but make it
+> user-friendly.
+
+After 10 minutes backend was ready, then I asked:
+
+> ok, now i want you to build web admin - and make it familiar to SAP userss, but very friendly
+> and clean at the same time. Don't use all the standard CRUD everywhere - try to approach each
+> page differently on the web.
+
+This repository is the result. Don't waste your tokens, use Vantage UI.
+
+----
+
 An ERP that SAP users will recognise, built to be easier to use. It covers sales, CRM,
 purchasing, inventory, production, finance and HR for a made-up company, Northwind
 Manufacturing, and comes loaded with a year of sample data.
@@ -52,6 +69,17 @@ The desktop app is built from the same tables, from the YAML in `page/`, `menu/`
 and `action/`.
 
 ![Desktop cockpit](docs/screenshots/desktop-cockpit.png)
+
+## How it fits together
+
+![Vantage UI deploys vantage-server (sap-vg-admin on Cloud Run), which serves the React web admin and the WebSocket API; vantage-server uses SurrealDB, which holds the data and the business rules](docs/architecture.svg)
+
+- **The app** is a Vantage project: tables, pages and actions in YAML, built in Vantage UI by
+  its LLM agent. The desktop app runs from the same folder.
+- **In production** it runs on `vantage-server`, the server Vantage UI runs locally, as the
+  Cloud Run service `sap-vg-admin`. It serves the web admin and the WebSocket API it talks to.
+- **SurrealDB** holds the data and the business rules (document numbers, ledger postings, stock
+  moves, guards), so they hold for every client.
 
 ## Layout
 
