@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Receiving (status → received) puts the goods into the warehouse in the database (tests/schema.surql).
+datasource: surrealdb
+title: Purchase orders
+columns:
+  id: { type: string, flags: [id] }
+  number: { type: string, label: PO, flags: [title, searchable] }
+  supplier: { type: string, label: Supplier, flags: [mandatory], references: { table: supplier, kind: has_one, name: supplier } }
+  supplier.name: { type: string, label: Supplier }
+  order_date: { type: date, label: Ordered }
+  expected_on: { type: date, label: Expected }
+  # Set by the database when goods are received (po_receive event); kept out of forms.
+  received_on: { type: date, label: Received, flags: [calculated] }
+  status: { type: string, label: Status, enum: [draft, ordered, received, cancelled] }
+  warehouse: { type: string, label: Deliver to, references: { table: warehouse, kind: has_one, name: warehouse } }
+  warehouse.name: { type: string, label: Deliver to }
+  buyer: { type: string, label: Buyer, references: { table: employee, kind: has_one, name: buyer } }
+  buyer.name: { type: string, label: Buyer }
+  total: { type: int, label: Total, unit: { currency: "$", minor_units: true },
+           expr: 'surreal::expr("math::sum(<~purchase_order_line.amount)")' }
+  line_count: { type: int, label: Lines, expr: 'surreal::expr("count(<~purchase_order_line)")' }
+  late: { type: bool, label: Late, expr: 'surreal::expr("status = ''ordered'' AND expected_on < time::floor(time::now(), 1d)")' }
+  deps_last_updated: { type: timestamp, flags: [hidden] }
+references:
+  lines: { table: purchase_order_line, kind: has_many, foreign_key: purchase_order }
+  bills: { table: bill, kind: has_many, foreign_key: purchase_order }

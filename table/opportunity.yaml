@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=./table-schema-1.json
+datasource: surrealdb
+title: Opportunities
+columns:
+  id: { type: string, flags: [id] }
+  number: { type: string, label: No., flags: [searchable] }
+  title: { type: string, label: Opportunity, flags: [mandatory, title, searchable] }
+  customer: { type: string, label: Customer, flags: [mandatory], references: { table: customer, kind: has_one, name: customer } }
+  customer.name: { type: string, label: Customer }
+  owner: { type: string, label: Owner, references: { table: employee, kind: has_one, name: owner } }
+  owner.name: { type: string, label: Owner }
+  stage: { type: string, label: Stage, enum: [lead, qualified, proposal, negotiation, won, lost] }
+  value: { type: int, label: Value, unit: { currency: "$", minor_units: true } }
+  probability: { type: int, label: Probability % }
+  weighted: { type: int, label: Weighted, unit: { currency: "$", minor_units: true }, expr: 'surreal::expr("math::round(value * probability / 100)")' }
+  expected_close: { type: date, label: Expected close }
+  created_at: { type: date, label: Created, flags: [hidden] }

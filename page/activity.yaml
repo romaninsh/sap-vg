@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Audit log
+body:
+  - kind: binder
+    name: log
+    observe: audit_event
+    params:
+      refresh_interval: 10
+      default_sort: { column: at, direction: desc }
+      filter: [table, action, who]
+      columns:
+        at: { label: When, render: relative, width: 120 }
+        who: { label: Who }
+        action: { label: Action, color: { success: [new], warning: [edit], danger: [delete] } }
+        table: { label: Table }
+        record: { label: Record }
+        summary: { label: Summary }
+        before: { label: Before, width: 240 }
+        after: { label: After, width: 240 }
+        event: { label: Message }

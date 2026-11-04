@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=./menu-schema-1.json
+title: Northwind ERP
+items:
+  - { page: cockpit, label: Cockpit, icon: LayoutDashboard }
+  - section: Sales
+    icon: ShoppingCart
+    children:
+      - { page: pipeline, label: Pipeline, icon: Kanban }
+      - { page: opportunities, label: Opportunities, icon: Target }
+      - { page: sales-orders, label: Sales orders, icon: ShoppingCart }
+      - { page: order-lines, label: Sales order lines, icon: List }
+      - { page: invoices, label: Invoices, icon: FileText }
+      - { page: payments, label: Customer payments, icon: Banknote }
+      - { page: customers, label: Customers, icon: Building2 }
+  - section: Purchasing
+    icon: Truck
+    children:
+      - { page: purchase-orders, label: Purchase orders, icon: ClipboardList }
+      - { page: po-lines, label: Purchase order lines, icon: List }
+      - { page: bills, label: Supplier bills, icon: Receipt }
+      - { page: bill-payments, label: Supplier payments, icon: Wallet }
+      - { page: suppliers, label: Suppliers, icon: Factory }
+  - section: Inventory
+    icon: Package
+    children:
+      - { page: products, label: Products, icon: Package }
+      - { page: stock-movements, label: Stock movements, icon: ArrowRight }
+      - { page: warehouses, label: Warehouses, icon: Building }
+  - section: Production
+    icon: Hammer
+    children:
+      - { page: production-board, label: Shop floor, icon: Kanban }
+      - { page: work-orders, label: Work orders, icon: Hammer }
+      - { page: bom, label: Bills of materials, icon: ListOrdered }
+  - section: Finance
+    icon: Landmark
+    children:
+      - { page: accounts, label: Chart of accounts, icon: BookOpen }
+      - { page: journal, label: Journal entries, icon: Book }
+      - { page: ledger, label: General ledger, icon: LayoutList }
+  - section: People
+    icon: Users
+    children:
+      - { page: employees, label: Employees, icon: Users }
+      - { page: departments, label: Departments, icon: Network }
+      - { page: leave, label: Leave requests, icon: CalendarDays }
+  - section: Administration
+    icon: Settings
+    children:
+      - { page: activity, label: Audit log, icon: Clock }

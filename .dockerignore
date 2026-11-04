@@ -1,0 +1,16 @@
+.env
+.env.*
+.agents
+.claude
+.git
+.playwright-mcp
+profiles/*.env
+private
+data
+bench
+docs
+tests
+web/*/node_modules
+web/*/dist
+web/*/e2e
+web/*/test

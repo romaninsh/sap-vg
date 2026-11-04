@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Bills of materials
+body:
+  - kind: binder
+    name: bom
+    observe: bom_line
+    params:
+      default_sort: { column: product.name, direction: asc }
+      filter: [product, component]
+      columns:
+        product.name: { label: Product, pin: true, width: 220 }
+        component.name: { label: Component, width: 220 }
+        qty: { label: Qty per unit }
+        component.uom: { label: Unit, width: 60 }
+        cost: { label: Cost per unit }

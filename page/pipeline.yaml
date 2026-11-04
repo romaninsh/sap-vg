@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Sales pipeline
+body:
+  - kind: kanban
+    name: board
+    observe: opportunity
+    params:
+      lane: stage
+      title: title
+      description: customer.name
+      assignee: owner.name
+      due: expected_close
+      search: true
+      lanes:
+        - { value: lead, label: Lead, color: muted }
+        - { value: qualified, label: Qualified, color: blue }
+        - { value: proposal, label: Proposal, color: cyan }
+        - { value: negotiation, label: Negotiation, color: yellow }
+        - { value: won, label: Won, color: success }
+        - { value: lost, label: Lost, color: danger }
+      collapsed: [lost]

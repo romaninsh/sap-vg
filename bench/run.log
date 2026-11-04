@@ -1,0 +1,22 @@
+
+== 1000 orders: {'customer': 50, 'sales_order': 1000, 'line': 2518, 'invoice': 790, 'payment': 697}
+  page_40_by_date         surreal-parent=    166.5ms   surreal-refs=      2.3ms   postgres=      0.2ms   sqlite=      0.0ms 
+  all_orders_with_totals  surreal-parent=   4087.8ms   surreal-refs=     15.6ms   postgres=      2.2ms   sqlite=      1.0ms 
+  page_40_by_total        surreal-parent=   1726.8ms   surreal-refs=      7.5ms   postgres=      0.8ms   sqlite=      0.4ms 
+  overdue_invoices        surreal-parent=    332.0ms   surreal-refs=      3.7ms   postgres=      0.5ms   sqlite=      0.2ms 
+  lines_of_one_order      surreal-parent=      0.2ms   surreal-refs=      0.2ms   postgres=      0.0ms   sqlite=      0.0ms 
+
+== 4000 orders: {'customer': 200, 'sales_order': 4000, 'line': 10035, 'invoice': 3120, 'payment': 2726}
+  page_40_by_date         surreal-parent=    665.6ms   surreal-refs=      2.1ms   postgres=      0.3ms   sqlite=      0.1ms 
+  all_orders_with_totals  surreal-parent=  67230.2ms*  surreal-refs=     63.2ms   postgres=     13.9ms   sqlite=      4.8ms 
+  page_40_by_total        surreal-parent=  27952.0ms*  surreal-refs=     30.6ms   postgres=      4.2ms   sqlite=      1.6ms 
+  overdue_invoices        surreal-parent=   5226.3ms   surreal-refs=     14.1ms   postgres=      2.1ms   sqlite=      1.0ms 
+  lines_of_one_order      surreal-parent=      0.2ms   surreal-refs=      0.2ms   postgres=      0.0ms   sqlite=      0.0ms 
+
+== 10000 orders: {'customer': 500, 'sales_order': 10000, 'line': 24977, 'invoice': 7842, 'payment': 6829}
+  page_40_by_date         surreal-parent=   1484.1ms   surreal-refs=      1.9ms   postgres=      0.3ms   sqlite=      0.1ms 
+  all_orders_with_totals  surreal-parent=      nanms*  surreal-refs=    151.3ms   postgres=     28.4ms   sqlite=     11.1ms 
+  page_40_by_total        surreal-parent=      nanms*  surreal-refs=     74.8ms   postgres=      7.7ms   sqlite=      4.0ms 
+  overdue_invoices        surreal-parent=      nanms*  surreal-refs=     39.7ms   postgres=      5.1ms   sqlite=      2.5ms 
+  lines_of_one_order      surreal-parent=      0.2ms   surreal-refs=      0.2ms   postgres=      0.1ms   sqlite=      0.0ms 
+exit 0

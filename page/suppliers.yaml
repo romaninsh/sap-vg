@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Suppliers
+body:
+  - kind: binder
+    name: suppliers
+    observe: supplier
+    params:
+      default_sort: { column: spend, direction: desc }
+      filter: [category, country, rating]
+      columns:
+        code: { label: Code, width: 80 }
+        name: { label: Supplier, pin: true, width: 220 }
+        category: { label: Category }
+        city: { label: City }
+        country: { label: Country }
+        rating: { label: Rating, labels: { "1": "★", "2": "★★", "3": "★★★", "4": "★★★★", "5": "★★★★★" }, color: { danger: ["1", "2"], success: ["5"] } }
+        spend: { label: Spend (12 mo) }
+        payable: { label: We owe, color: { muted: ["0"] } }
+        payment_terms: { label: Terms, labels: { "0": Prepaid, "15": Net 15, "30": Net 30, "45": Net 45, "60": Net 60 } }
+        email: { label: Email }

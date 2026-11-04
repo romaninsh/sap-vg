@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=./page-schema-1.json
+# Opened from a row's "History" action with args: col (the audit log context column), id, number.
+title: "History of ${args.number}"
+body:
+  - kind: grid
+    observe: { script: 'scenery("audit_event").where(args.col, args.id).sort("at", "desc")' }
+    params:
+      refresh_interval: 5
+      columns:
+        at: { label: When, render: relative, width: 120 }
+        who: { label: Who }
+        action: { label: Change, color: { success: [new], warning: [edit], danger: [delete] } }
+        table: { label: Table }
+        before: { label: Before, width: 280 }
+        after: { label: After, width: 280 }

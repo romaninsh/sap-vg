@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Shipping (status → shipped) issues stock and books cost of goods sold in the database (tests/schema.surql).
+datasource: surrealdb
+title: Sales orders
+columns:
+  id: { type: string, flags: [id] }
+  number: { type: string, label: Order, flags: [title, searchable] }
+  customer: { type: string, label: Customer, flags: [mandatory], references: { table: customer, kind: has_one, name: customer } }
+  customer.name: { type: string, label: Customer }
+  customer_ref: { type: string, label: Customer PO, flags: [searchable] }
+  order_date: { type: date, label: Ordered }
+  requested_on: { type: date, label: Requested delivery }
+  # Set by the database when the order ships (so_ship event); kept out of forms.
+  shipped_on: { type: date, label: Shipped, flags: [calculated] }
+  status: { type: string, label: Status, enum: [draft, confirmed, shipped, cancelled] }
+  warehouse: { type: string, label: Ship from, references: { table: warehouse, kind: has_one, name: warehouse } }
+  warehouse.name: { type: string, label: Ship from }
+  sales_rep: { type: string, label: Sales rep, references: { table: employee, kind: has_one, name: sales_rep } }
+  sales_rep.name: { type: string, label: Sales rep }
+  total: { type: int, label: Total, unit: { currency: "$", minor_units: true },
+           expr: 'surreal::expr("math::sum(<~sales_order_line.amount)")' }
+  line_count: { type: int, label: Lines, expr: 'surreal::expr("count(<~sales_order_line)")' }
+  billing: { type: string, label: Billing,
+             expr: 'surreal::expr("IF status != ''shipped'' THEN '''' ELSE IF count(<~invoice[WHERE status != ''void'']) > 0 THEN ''invoiced'' ELSE ''to_invoice'' END")' }
+  # Template-readable aliases for dashboard feeds (dotted names aren't template variables);
+  # customer_name is also what the web admin sorts by (a dotted column can't be ordered by).
+  customer_name: { type: string, flags: [hidden], expr: 'surreal::expr("customer.name")' }
+  total_display: { type: string, flags: [hidden], expr: 'surreal::expr("fn::usd(math::sum(<~sales_order_line.amount))")' }
+  deps_last_updated: { type: timestamp, flags: [hidden] }
+references:
+  lines: { table: sales_order_line, kind: has_many, foreign_key: sales_order }
+  invoices: { table: invoice, kind: has_many, foreign_key: sales_order }

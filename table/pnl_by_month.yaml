@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Revenue vs all costs per completed month from the posted ledger (long format for a grouped line chart).
+datasource: surrealdb
+title: Revenue and costs by month
+columns:
+  id: { type: string, flags: [id] }
+  month: { type: string, flags: [hidden] }
+  label: { type: string, label: Month, flags: [title] }
+  series: { type: string, label: Series }
+  dollars: { type: int, label: Amount, unit: { currency: "$" } }
+surreal:
+  rhai: |
+    let lines = surreal::select()
+        .expression(surreal::expr("time::format(entry.posted_on, '%Y-%m')").alias("month"))
+        .expression(surreal::expr("time::format(entry.posted_on, '%b %y')").alias("label"))
+        .expression(surreal::expr("IF account.kind = 'revenue' THEN 'Revenue' ELSE 'Costs' END").alias("series"))
+        .expression(surreal::expr("IF account.kind = 'revenue' THEN credit - debit ELSE debit - credit END").alias("amt"))
+        .from("journal_line")
+        .where(surreal::expr("account.kind INSIDE ['revenue', 'expense'] AND entry.status = 'posted' AND entry.posted_on > time::now() - 400d"))
+        // Whole months only: the current month is still filling up.
+        .where(surreal::expr("time::format(entry.posted_on, '%Y-%m') != time::format(time::now(), '%Y-%m')"));
+    let grouped = surreal::select()
+        .field("month").field("label").field("series")
+        .expression(surreal::expr("math::sum(amt)").alias("amount"))
+        .from(lines.subquery())
+        .group_by(surreal::ident("month"))
+        .group_by(surreal::ident("label"))
+        .group_by(surreal::ident("series"));
+    surreal::select()
+        .from(grouped.subquery())
+        .expression(surreal::fx("type::record", [surreal::expr("'pnl_by_month'"), surreal::expr("string::concat(month, '-', series)")]).alias("id"))
+        .field("month").field("label").field("series")
+        .expression(surreal::expr("<int> math::round(amount / 100)").alias("dollars"))
+        .order_by(surreal::ident("month"), "asc")

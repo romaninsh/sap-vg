@@ -1,0 +1,7 @@
+# yaml-language-server: $schema=./action-schema-1.json
+kind: confirm
+dialog:
+  title: "Delete ${row.name}?"
+  description: "Only an empty department can be deleted: move its people and sub-departments first."
+  confirm_label: Delete department
+  confirm_style: danger

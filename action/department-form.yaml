@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=./action-schema-1.json
+# Asks for a new department; the caller passes the values to create-department.
+kind: form
+dialog:
+  title: New department
+  description: "Pick where it sits in the organisation. You can drag it elsewhere in the tree later."
+  confirm_label: Create department
+form:
+  table: department
+  fields:
+    - { name: name, label: Name }
+    - { name: cost_center, label: Cost centre, placeholder: "e.g. CC-215" }
+    - { name: parent, label: Reports to, widget: dropdown }
+    - { name: head, label: Head, widget: dropdown, required: false }
+    - { name: budget_dollars, type: float, label: "Annual budget ($)", required: false, placeholder: "0" }

@@ -1,0 +1,138 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Cockpit
+body:
+  - kind: row
+    children:
+      - kind: stat
+        observe: erp_kpis
+        action: 'navigate("invoices")'
+        params: { label: "Revenue · 30 days", icon: TrendingUp, color: green, column: rev30_display, change: rev30_change, change_text: rev30_note, refresh_interval: 60 }
+      - kind: stat
+        observe: erp_kpis
+        action: 'navigate("sales-orders")'
+        params: { label: Order backlog, icon: ShoppingCart, color: blue, column: backlog_display, change: backlog_note, refresh_interval: 60 }
+      - kind: stat
+        observe: erp_kpis
+        action: 'navigate("invoices")'
+        params: { label: Receivables, icon: FileText, color: cyan, column: ar_display, change: ar_note, refresh_interval: 60 }
+      - kind: stat
+        observe: erp_kpis
+        action: 'navigate("bills")'
+        params: { label: Payables, icon: Receipt, color: magenta, column: ap_display, change: ap_note, refresh_interval: 60 }
+      - kind: stat
+        observe: erp_kpis
+        action: 'navigate("accounts")'
+        params: { label: Cash in bank, icon: Landmark, color: green, column: cash_display, refresh_interval: 60 }
+      - kind: stat
+        observe: erp_kpis
+        action: 'navigate("accounts")'
+        params: { label: "Gross margin · 12 months", icon: Scale, color: yellow, column: margin_display, refresh_interval: 300 }
+
+  - kind: label
+    params: { text: Needs attention, style: heading, icon: Bell }
+  - kind: row
+    children:
+      - kind: stat
+        observe: { script: 'scenery("invoice").where("state", "overdue")' }
+        action: 'navigate("invoices")'
+        params: { label: Overdue invoices, icon: CircleAlert, color: danger, refresh_interval: 60 }
+      - kind: stat
+        observe: { script: 'scenery("sales_order").where("status", "confirmed")' }
+        action: 'navigate("sales-orders")'
+        params: { label: Orders to ship, icon: Truck, color: blue }
+      - kind: stat
+        observe: { script: 'scenery("sales_order").where("billing", "to_invoice")' }
+        action: 'navigate("sales-orders")'
+        params: { label: "Shipped, not invoiced", icon: FileText, color: warning }
+      - kind: stat
+        observe: { script: 'scenery("product").where("stock_state", "low")' }
+        action: 'navigate("products")'
+        params: { label: Items below reorder level, icon: TriangleAlert, color: warning, refresh_interval: 60 }
+      - kind: stat
+        observe: { script: 'scenery("bill").where("status", "draft")' }
+        action: 'navigate("bills")'
+        params: { label: Bills to approve, icon: Receipt, color: magenta }
+      - kind: stat
+        observe: { script: 'scenery("leave_request").where("status", "pending")' }
+        action: 'navigate("leave")'
+        params: { label: Leave to approve, icon: CalendarDays, color: cyan }
+
+  - kind: row
+    height: 300
+    children:
+      - kind: column
+        frame: true
+        children:
+          - kind: chart
+            observe: pnl_by_month
+            params:
+              x: label
+              y: dollars
+              group: series
+              chart_type: line
+              label: "Revenue vs costs by month ($)"
+              refresh_interval: 300
+              palette: { colors: ["#199e70", "#e66767"], order: grouped }
+      - kind: column
+        frame: true
+        width: 520
+        children:
+          - kind: label
+            params: { text: "Sales by category · 12 months", style: heading, icon: ChartPie }
+          - kind: row
+            children:
+              - kind: column
+                width: 220
+                children:
+                  - kind: chart
+                    observe: sales_by_category
+                    height: 220
+                    params:
+                      x: category
+                      y: dollars
+                      chart_type: pie
+                      label: ""
+                      refresh_interval: 300
+                      palette: { colors: ["#3987e5", "#199e70", "#c98500", "#9b59d0", "#e66767"], order: grouped }
+              - kind: list
+                observe: sales_by_category
+                height: 220
+                params:
+                  text: '${ category }'
+                  label: '${ display + "  ·  " + share_pct.to_string() + "%" }'
+                  bar: share_pct
+                  refresh_interval: 300
+                  palette: { colors: ["#3987e5", "#199e70", "#c98500", "#9b59d0", "#e66767"], order: grouped }
+
+  - kind: row
+    height: 300
+    children:
+      - kind: column
+        frame: true
+        children:
+          - kind: chart
+            observe: ar_aging
+            params: { x: bucket, y: dollars, chart_type: bar, label: "Receivables aging ($)", value_labels: true, refresh_interval: 120 }
+      - kind: column
+        frame: true
+        action: 'navigate("customers")'
+        children:
+          - kind: label
+            params: { text: "Top customers · 12 months", style: heading, icon: Building2 }
+          - kind: list
+            observe: top_customers
+            params:
+              text: '${ customer }'
+              label: '${ display }'
+              bar: bar_pct
+              refresh_interval: 300
+      - kind: column
+        frame: true
+        children:
+          - kind: label
+            params: { text: Latest sales orders, style: heading, icon: ShoppingCart }
+          - kind: list
+            observe: { script: 'scenery("sales_order").sort("order_date", "desc").limit(8)' }
+            params:
+              text: '${ number + "  ·  " + customer_name }'
+              label: '${ #{ text: total_display, color: if status == "shipped" { "success" } else if status == "cancelled" { "muted" } else if status == "draft" { "muted" } else { "blue" } } }'

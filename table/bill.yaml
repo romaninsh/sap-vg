@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Supplier invoices. Approving posts Inventory / Accounts payable in the database.
+datasource: surrealdb
+title: Supplier bills
+columns:
+  id: { type: string, flags: [id] }
+  number: { type: string, label: Bill, flags: [title, searchable] }
+  supplier: { type: string, label: Supplier, flags: [mandatory], references: { table: supplier, kind: has_one, name: supplier } }
+  supplier.name: { type: string, label: Supplier }
+  supplier_ref: { type: string, label: Supplier invoice no., flags: [searchable] }
+  purchase_order: { type: string, label: PO, references: { table: purchase_order, kind: has_one, name: purchase_order } }
+  purchase_order.number: { type: string, label: PO }
+  received_on: { type: date, label: Received }
+  due_on: { type: date, label: Due }
+  amount: { type: int, label: Amount, unit: { currency: "$", minor_units: true } }
+  status: { type: string, label: Status, enum: [draft, approved, void] }
+  # paid_amount is kept by the database as payments go out (payments are immutable); the rest derive from it.
+  paid: { type: int, label: Paid, unit: { currency: "$", minor_units: true }, expr: 'surreal::expr("paid_amount")' }
+  outstanding: { type: int, label: Outstanding, unit: { currency: "$", minor_units: true },
+                 expr: 'surreal::expr("IF status = ''approved'' THEN amount - paid_amount ELSE 0 END")' }
+  state: { type: string, label: Payment,
+           expr: 'surreal::expr("IF status != ''approved'' THEN status ELSE IF amount - paid_amount <= 0 THEN ''paid'' ELSE IF due_on < time::floor(time::now(), 1d) THEN ''overdue'' ELSE IF due_on < time::floor(time::now(), 1d) + 8d THEN ''due_soon'' ELSE ''open'' END")' }
+  deps_last_updated: { type: timestamp, flags: [hidden] }
+references:
+  payments: { table: bill_payment, kind: has_many, foreign_key: bill }

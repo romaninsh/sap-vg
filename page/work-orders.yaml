@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Work orders
+body:
+  - kind: binder
+    name: wos
+    observe: work_order
+    params:
+      default_sort: { column: start_on, direction: desc }
+      filter: [status, product, late, ">=start_on"]
+      filters:
+        - { label: In progress, column: status, value: in_progress, default: false }
+        - { label: Planned, column: status, value: planned, default: false }
+        - { label: Late, column: late, value: true, default: false }
+      columns:
+        number: { label: Work order, pin: true, width: 100 }
+        product.name: { label: Product, width: 200 }
+        qty: { label: Qty }
+        status:
+          label: Status
+          labels: { planned: Planned, released: Released, in_progress: In progress, done: Done, cancelled: Cancelled }
+          color: { muted: [planned, cancelled], blue: [released], yellow: [in_progress], success: [done] }
+        late: { label: Late, labels: { "true": Late, "false": "" }, color: { danger: ["true"] } }
+        start_on: { label: Start }
+        due_on: { label: Due }
+        completed_on: { label: Completed }
+        material_cost: { label: Material cost }
+        warehouse.code: { label: Warehouse }
+      row_actions:
+        - label: History
+          icon: Clock
+          navigate: history
+          args: { col: '"work_order"', id: row.id, number: row.number }
+        - label: Release to shop floor
+          icon: Play
+          when: 'row.status == "planned"'
+          action: |
+            row.status = "released";
+            row.flash();
+        - label: Start production
+          icon: Hammer
+          when: 'row.status == "released"'
+          action: |
+            row.status = "in_progress";
+            row.flash();
+        - label: Complete
+          icon: ClipboardCheck
+          when: 'row.status == "released" || row.status == "in_progress"'
+          action: |
+            row.status = "done";
+            row.flash();
+            notify(row.number + " complete — materials consumed, finished goods in stock");
+        - label: Cancel
+          icon: Ban
+          when: 'row.status == "planned" || row.status == "released"'
+          action: |
+            if actions.confirm_cancel(row) { row.status = "cancelled"; row.flash(); }

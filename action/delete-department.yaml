@@ -1,0 +1,6 @@
+# yaml-language-server: $schema=./action-schema-1.json
+# args: id. The database refuses while the department still has people or sub-departments.
+kind: script
+body: |
+  table("department").delete(args.id);
+  notify("Department deleted");

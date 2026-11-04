@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=./table-schema-1.json
+datasource: surrealdb
+title: Suppliers
+columns:
+  id: { type: string, flags: [id] }
+  code: { type: string, label: Code, flags: [searchable] }
+  name: { type: string, label: Supplier, flags: [mandatory, title, searchable] }
+  category: { type: string, label: Category, enum: [Raw materials, Components, Trading goods, Packaging, Services] }
+  email: { type: string, label: Email, flags: [searchable] }
+  phone: { type: string, label: Phone }
+  city: { type: string, label: City }
+  country: { type: string, label: Country }
+  payment_terms: { type: int, label: Terms (days), enum: [0, 15, 30, 45, 60] }
+  rating: { type: int, label: Rating, enum: [1, 2, 3, 4, 5] }
+  spend: { type: int, label: Spend (12 mo), unit: { currency: "$", minor_units: true },
+           expr: 'surreal::expr("math::sum(<~bill[WHERE status = ''approved'' AND received_on > time::now() - 365d].amount)")' }
+  payable: { type: int, label: We owe, unit: { currency: "$", minor_units: true },
+             expr: 'surreal::expr("math::sum(<~bill[WHERE status = ''approved''].amount) - math::sum(<~bill[WHERE status = ''approved''].paid_amount)")' }
+references:
+  orders: { table: purchase_order, kind: has_many, foreign_key: supplier }
+  bills: { table: bill, kind: has_many, foreign_key: supplier }
+  products: { table: product, kind: has_many, foreign_key: supplier }

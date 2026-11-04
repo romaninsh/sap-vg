@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Leave requests
+body:
+  - kind: binder
+    name: leave
+    observe: leave_request
+    params:
+      default_sort: { column: starts_on, direction: desc }
+      filter: [status, kind, employee]
+      filters:
+        - { label: Waiting for approval, column: status, value: pending, default: false }
+      columns:
+        employee.name: { label: Employee, pin: true, width: 180 }
+        kind: { label: Type, labels: { vacation: Vacation, sick: Sick leave, personal: Personal, parental: Parental } }
+        starts_on: { label: From }
+        ends_on: { label: To }
+        days: { label: Days }
+        status:
+          label: Status
+          labels: { pending: Pending, approved: Approved, rejected: Rejected }
+          color: { warning: [pending], success: [approved], danger: [rejected] }
+        requested_on: { label: Requested }
+        note: { label: Note }
+      row_actions:
+        - label: Approve
+          icon: Check
+          when: 'row.status == "pending"'
+          action: |
+            row.status = "approved";
+            row.flash();
+        - label: Reject
+          icon: X
+          when: 'row.status == "pending"'
+          action: |
+            row.status = "rejected";
+            row.flash();

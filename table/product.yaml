@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Stock on hand is the sum of stock movements — never stored.
+datasource: surrealdb
+title: Products
+columns:
+  id: { type: string, flags: [id] }
+  sku: { type: string, label: SKU, flags: [mandatory, searchable] }
+  name: { type: string, label: Product, flags: [mandatory, title, searchable] }
+  kind: { type: string, label: Type, enum: [finished, raw, trading, service] }
+  category: { type: string, label: Category, references: { table: product_category, kind: has_one, name: category } }
+  category.name: { type: string, label: Category }
+  uom: { type: string, label: Unit, enum: [pcs, m, kg, l, set, hr] }
+  cost_price: { type: int, label: Standard cost, unit: { currency: "$", minor_units: true } }
+  sale_price: { type: int, label: List price, unit: { currency: "$", minor_units: true } }
+  margin_pct: { type: int, label: Margin %, expr: 'surreal::expr("IF sale_price > 0 THEN math::round((sale_price - cost_price) * 100 / sale_price) ELSE NONE END")' }
+  reorder_level: { type: int, label: Reorder at }
+  supplier: { type: string, label: Preferred supplier, references: { table: supplier, kind: has_one, name: supplier } }
+  supplier.name: { type: string, label: Preferred supplier }
+  active: { type: bool, label: Active }
+  on_hand: { type: int, label: On hand, expr: 'surreal::expr("math::sum(<~stock_move.qty)")' }
+  stock_value: { type: int, label: Stock value, unit: { currency: "$", minor_units: true },
+                 expr: 'surreal::expr("math::sum(<~stock_move.qty) * cost_price")' }
+  stock_state: { type: string, label: Stock,
+                 expr: 'surreal::expr("IF kind = ''service'' THEN '''' ELSE IF math::sum(<~stock_move.qty) <= 0 THEN ''out'' ELSE IF math::sum(<~stock_move.qty) < reorder_level THEN ''low'' ELSE ''ok'' END")' }
+references:
+  bom: { table: bom_line, kind: has_many, foreign_key: product }
+  used_in: { table: bom_line, kind: has_many, foreign_key: component }
+  movements: { table: stock_move, kind: has_many, foreign_key: product }
+  sales_lines: { table: sales_order_line, kind: has_many, foreign_key: product }
+  purchase_lines: { table: purchase_order_line, kind: has_many, foreign_key: product }

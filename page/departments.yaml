@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=./page-schema-1.json
+# Org chart as a tree-table. Drag a department onto another to move it there; drag between rows to reorder.
+# Double-click opens the department (edit it, see its people).
+title: Departments
+body:
+  - kind: row
+    children:
+      - kind: label
+        params: { text: "Drag a department onto another to move it; double-click to open it.", style: muted }
+      - kind: column
+        align: end
+        grow: false
+        children:
+          - kind: button
+            params:
+              label: New department
+              icon: Plus
+              style: primary
+              action: |
+                let r = actions.department_form();
+                actions.create_department(r);
+  - kind: tree
+    name: org
+    observe: department
+    params:
+      parent: parent
+      title: name
+      rank: rank
+      reparent: true
+      expand: 3
+      columns:
+        cost_center: { label: Cost centre, width: 90 }
+        head.name: { label: Head, width: 170 }
+        headcount: { label: People, rollup: sum, width: 70, tooltip: "This department and everything under it" }
+        payroll_usd: { label: "Payroll ($)", rollup: sum, width: 120, tooltip: "Annual salaries, this department and everything under it" }
+        budget_usd: { label: "Budget ($)", rollup: sum, width: 120, tooltip: "Annual budget, this department and everything under it" }
+      on_open: 'open_in("sheet", "department", #{ id: row.id, name: row.name })'

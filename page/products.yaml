@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Products
+body:
+  - kind: binder
+    name: products
+    observe: product
+    params:
+      default_sort: { column: sku, direction: asc }
+      filter: [kind, category, stock_state, supplier, active]
+      filters:
+        - { label: Low stock, column: stock_state, value: low, default: false }
+        - { label: Out of stock, column: stock_state, value: out, default: false }
+        - { label: Raw materials, column: kind, value: raw, default: false }
+      columns:
+        sku: { label: SKU, pin: true, width: 90 }
+        name: { label: Product, width: 220 }
+        kind:
+          label: Type
+          labels: { finished: Finished good, raw: Raw material, trading: Trading good, service: Service }
+          color: { blue: [finished], muted: [raw], cyan: [trading], magenta: [service] }
+        category.name: { label: Category }
+        on_hand: { label: On hand, color: { danger: ["<=0"] } }
+        uom: { label: Unit, width: 60 }
+        reorder_level: { label: Reorder at }
+        stock_state:
+          label: Stock
+          labels: { ok: OK, low: Low, out: Out, "": "" }
+          color: { success: [ok], warning: [low], danger: [out] }
+        cost_price: { label: Std cost }
+        sale_price: { label: List price, color: { muted: ["0"] } }
+        margin_pct: { label: Margin %, color: { danger: ["<20"], success: [">=45"] } }
+        stock_value: { label: Stock value }
+        supplier.name: { label: Preferred supplier }
+      toolbar:
+        - label: Reorder low stock
+          icon: RefreshCw
+          color: primary
+          action: |
+            actions.reorder_low_stock();
+        - label: Show low stock
+          icon: TriangleAlert
+          action: |
+            grid.reset();
+            grid.filter("stock_state", "in", ["low", "out"]);

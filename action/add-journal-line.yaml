@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=./action-schema-1.json
+# Called from a draft journal entry row; the caller writes the line.
+kind: form
+dialog:
+  title: "Add line to ${row.number}"
+  confirm_label: Add line
+form:
+  fields:
+    - name: account
+      type: string
+      label: Account
+      widget: dropdown
+      option_label: name
+      options: |
+        table("gl_account").sort("code")
+    - { name: is_credit, type: bool, label: "Credit (leave unticked for a debit)", required: false, default: "false" }
+    - { name: amount, type: float, label: "Amount ($)" }
+    - { name: memo, type: string, label: Line note, required: false }

@@ -1,0 +1,190 @@
+# yaml-language-server: $schema=./api-schema-1.json
+# Every entity loads on first use (no `instant`), so the page shows before any table arrives.
+# The web admin (web/admin/). Writes go straight to the tables: the database rules in tests/schema.surql
+# (stock checks, ledger postings, status transitions) apply exactly as on the desktop.
+title: Northwind web admin
+description: Launchpad, documents, inventory, finance and people for the browser.
+
+entities:
+  # ── Analytics (query tables, read-only) ──
+  - name: kpis
+    observe: erp_kpis
+    params:
+      columns: [rev30_display, rev30_change, rev30_note, ar_display, ar_note, ap_display, ap_note, cash_display, stock_display, backlog_display, backlog_note, margin_display]
+    api: { refresh: 30 }
+  - name: ar_aging
+    observe: ar_aging
+    params: { columns: [bucket, ord, dollars, display, invoices], default_sort: ord }
+    api: { refresh: 60 }
+  - name: sales_by_category
+    observe: sales_by_category
+    params: { columns: [category, dollars, display, share_pct] }
+    api: { refresh: 120 }
+  - name: pnl_by_month
+    observe: pnl_by_month
+    params: { columns: [month, label, series, dollars], default_sort: month }
+    api: { refresh: 120 }
+  - name: top_customers
+    observe: top_customers
+    params: { columns: [customer, display, bar_pct] }
+    api: { refresh: 120 }
+
+  # ── Sales ──
+  - name: customers
+    observe: customer
+    params:
+      columns: [code, name, segment, status, email, phone, city, country, sales_rep, sales_rep.name, payment_terms, credit_limit, since, revenue, open_balance]
+      filter: [segment, status, sales_rep, country, name]
+      default_sort: -revenue
+    api: { load: lazy }
+  - name: opportunities
+    observe: opportunity
+    params:
+      columns: [number, title, customer, customer.name, owner, owner.name, stage, value, probability, weighted, expected_close]
+      filter: [stage, customer, owner]
+      default_sort: expected_close
+  - name: sales_orders
+    observe: sales_order
+    params:
+      columns: [number, customer, customer.name, customer_name, customer_ref, order_date, requested_on, shipped_on, status, warehouse, warehouse.name, sales_rep, sales_rep.name, total, line_count, billing]
+      filter: [status, customer, billing, sales_rep, number]
+      default_sort: -order_date
+  - name: sales_order_lines
+    observe: sales_order_line
+    params:
+      columns: [sales_order, product, product.name, product.sku, qty, unit_price, discount_pct, amount]
+      filter: [sales_order, product]
+  - name: invoices
+    observe: invoice
+    params:
+      columns: [number, customer, customer.name, customer_name, sales_order, sales_order.number, issued_on, due_on, amount, status, paid, outstanding, state, days_overdue]
+      filter: [state, status, customer, sales_order]
+      default_sort: -issued_on
+  - name: payments
+    observe: payment
+    # Payments can't be changed or deleted: the database refuses it (pay_immutable in tests/schema.surql).
+    params:
+      columns: [invoice, invoice.number, invoice.customer.name, paid_on, amount, method]
+      filter: [invoice]
+      default_sort: -paid_on
+
+  # ── Purchasing ──
+  - name: suppliers
+    observe: supplier
+    params:
+      columns: [code, name, category, email, phone, city, country, payment_terms, rating, spend, payable]
+      filter: [category, rating]
+      default_sort: -spend
+    api: { load: lazy }
+  - name: purchase_orders
+    observe: purchase_order
+    params:
+      columns: [number, supplier, supplier.name, order_date, expected_on, received_on, status, warehouse, warehouse.name, buyer, buyer.name, total, line_count, late]
+      filter: [status, supplier, late]
+      default_sort: -order_date
+  - name: purchase_order_lines
+    observe: purchase_order_line
+    params:
+      columns: [purchase_order, product, product.name, product.uom, qty, unit_cost, amount]
+      filter: [purchase_order, product]
+  - name: bills
+    observe: bill
+    params:
+      columns: [number, supplier, supplier.name, supplier_ref, purchase_order, purchase_order.number, received_on, due_on, amount, status, paid, outstanding, state]
+      filter: [state, status, supplier, purchase_order]
+      default_sort: due_on
+  - name: bill_payments
+    observe: bill_payment
+    # Payments can't be changed or deleted: the database refuses it (bpay_immutable in tests/schema.surql).
+    params:
+      columns: [bill, bill.number, paid_on, amount, method]
+      filter: [bill]
+      default_sort: -paid_on
+
+  # ── Inventory & production ──
+  - name: products
+    observe: product
+    params:
+      columns: [sku, name, kind, category, category.name, uom, cost_price, sale_price, margin_pct, reorder_level, supplier, supplier.name, active, on_hand, stock_value, stock_state]
+      filter: [kind, category, stock_state, supplier, active]
+      default_sort: sku
+    api: { refresh: 30 }
+  - name: warehouses
+    observe: warehouse
+    params: { columns: [code, name, city, stock_value] }
+    api: { load: lazy }
+  - name: stock_moves
+    observe: stock_move
+    read_only: true
+    params:
+      columns: [moved_at, product, product.name, product.sku, warehouse, warehouse.code, kind, qty, reference, value]
+      filter: [product, warehouse, kind]
+      default_sort: -moved_at
+  - name: bom_lines
+    observe: bom_line
+    params:
+      columns: [product, component, component.name, component.uom, qty, cost]
+      filter: [product]
+  - name: work_orders
+    observe: work_order
+    params:
+      columns: [number, product, product.name, qty, warehouse, start_on, due_on, completed_on, status, material_cost, late]
+      filter: [status, product, late]
+      default_sort: due_on
+
+  # ── Finance ──
+  - name: gl_accounts
+    observe: gl_account
+    read_only: true
+    params: { columns: [code, name, kind, debits, credits, balance], filter: [kind], default_sort: code }
+    api: { refresh: 30 }
+  - name: journal_entries
+    observe: journal_entry
+    params:
+      columns: [number, posted_on, memo, source, status, total_debit, total_credit, balanced]
+      filter: [status, source]
+      default_sort: -number
+  - name: journal_lines
+    observe: journal_line
+    params:
+      columns: [entry, account, account.code, account.name, debit, credit, memo]
+      filter: [entry, account]
+
+  # ── People ──
+  - name: departments
+    observe: department
+    params:
+      columns: [name, cost_center, parent, head, head.name, rank, budget, headcount, payroll_usd, budget_usd]
+      filter: [parent]
+      default_sort: rank
+    api: { load: lazy }
+  - name: employees
+    observe: employee
+    params:
+      columns: [name, title, department, department.name, manager, manager.name, email, phone, hired_on, status, years]
+      filter: [department, status, manager]
+      default_sort: name
+    api: { load: lazy }
+  - name: leave_requests
+    observe: leave_request
+    params:
+      columns: [employee, employee.name, kind, starts_on, ends_on, days, status, requested_on, note]
+      filter: [status, employee]
+      default_sort: -starts_on
+
+  # ── Change history (written by the audit log; read-only) ──
+  - name: changes
+    observe: audit_event
+    params:
+      columns: [at, who, action, table, summary, before, after, sales_order, purchase_order, invoice]
+      filter: [sales_order, purchase_order, invoice]
+      default_sort: -at
+
+actions: [reorder-low-stock]
+
+auth:
+  local: none
+  ci: none
+  # Deployed without sign-in, by the owner's choice (2026-11-04): anyone with the URL can read and
+  # change everything this API serves. Switch to `session` before sharing the address widely.
+  prod: none

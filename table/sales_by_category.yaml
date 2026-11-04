@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Shipped sales of the last 12 months per product category.
+datasource: surrealdb
+title: Sales by category
+columns:
+  id: { type: string, flags: [id] }
+  category: { type: string, label: Category, flags: [title] }
+  dollars: { type: int, label: Sales, unit: { currency: "$" } }
+  display: { type: string, label: Sales }
+  share_pct: { type: int, label: Share % }
+surreal:
+  rhai: |
+    let lines = surreal::select()
+        .expression(surreal::expr("product.category.name ?? 'Other'").alias("category"))
+        .field("amount")
+        .from("sales_order_line")
+        .where(surreal::expr("sales_order.status = 'shipped' AND sales_order.shipped_on > time::now() - 365d"));
+    let grouped = surreal::select()
+        .field("category")
+        .expression(surreal::expr("math::sum(amount)").alias("amount"))
+        .from(lines.subquery())
+        .group_by(surreal::ident("category"));
+    surreal::select()
+        .from(grouped.subquery())
+        .expression(surreal::fx("type::record", [surreal::expr("'sales_by_category'"), surreal::ident("category")]).alias("id"))
+        .field("category")
+        .expression(surreal::expr("<int> math::round(amount / 100)").alias("dollars"))
+        .expression(surreal::expr("fn::usd(amount)").alias("display"))
+        .expression(surreal::expr("<int> math::round(amount * 100 / math::sum((SELECT VALUE amount FROM sales_order_line WHERE sales_order.status = 'shipped' AND sales_order.shipped_on > time::now() - 365d)))").alias("share_pct"))
+        .order_by(surreal::ident("dollars"), "desc")

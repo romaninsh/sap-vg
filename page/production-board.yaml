@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=./page-schema-1.json
+# Dragging a card to Done completes the work order: the database consumes materials and stocks the output.
+title: Shop floor
+body:
+  - kind: kanban
+    name: floor
+    observe: work_order
+    params:
+      lane: status
+      title: number
+      description: product.name
+      due: due_on
+      add_card: false
+      search: true
+      lanes:
+        - { value: planned, label: Planned, color: muted }
+        - { value: released, label: Released, color: blue }
+        - { value: in_progress, label: In progress, color: yellow }
+        - { value: done, label: Done, color: success }
+        - { value: cancelled, label: Cancelled, color: muted }
+      collapsed: [done, cancelled]

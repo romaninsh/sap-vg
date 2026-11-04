@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Stock movements
+body:
+  - kind: binder
+    name: moves
+    observe: stock_move
+    params:
+      default_sort: { column: moved_at, direction: desc }
+      filter: [kind, product, warehouse, "~reference", ">=moved_at"]
+      columns:
+        moved_at: { label: When, width: 140 }
+        product.sku: { label: SKU, width: 90 }
+        product.name: { label: Product, width: 220 }
+        warehouse.code: { label: Warehouse, width: 90 }
+        kind:
+          label: Movement
+          labels: { opening: Opening, receipt: Goods receipt, issue: Goods issue, production: Production output, consumption: Material use, adjustment: Adjustment }
+          color: { success: [receipt, production], blue: [issue], yellow: [consumption], magenta: [adjustment], muted: [opening] }
+        qty: { label: Qty, color: { danger: ["<0"], success: [">0"] } }
+        value: { label: Value, color: { danger: ["<0"] } }
+        reference: { label: Reference }

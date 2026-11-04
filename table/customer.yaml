@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=./table-schema-1.json
+datasource: surrealdb
+title: Customers
+columns:
+  id: { type: string, flags: [id] }
+  code: { type: string, label: Code, flags: [searchable] }
+  name: { type: string, label: Customer, flags: [mandatory, title, searchable] }
+  segment: { type: string, label: Segment, enum: [enterprise, smb, public, retail] }
+  status: { type: string, label: Status, enum: [active, blocked] }
+  email: { type: string, label: Email, flags: [searchable] }
+  phone: { type: string, label: Phone }
+  city: { type: string, label: City, flags: [searchable] }
+  country: { type: string, label: Country }
+  sales_rep: { type: string, label: Account manager, references: { table: employee, kind: has_one, name: sales_rep } }
+  sales_rep.name: { type: string, label: Account manager }
+  payment_terms: { type: int, label: Terms (days), enum: [0, 15, 30, 45, 60] }
+  credit_limit: { type: int, label: Credit limit, unit: { currency: "$", minor_units: true } }
+  since: { type: date, label: Customer since }
+  revenue: { type: int, label: Revenue (12 mo), unit: { currency: "$", minor_units: true },
+             expr: 'surreal::expr("math::sum(<~invoice[WHERE status = ''issued'' AND issued_on > time::now() - 365d].amount)")' }
+  open_balance: { type: int, label: Open balance, unit: { currency: "$", minor_units: true },
+                  expr: 'surreal::expr("math::sum(<~invoice[WHERE status = ''issued''].amount) - math::sum(<~invoice[WHERE status = ''issued''].paid_amount)")' }
+references:
+  orders: { table: sales_order, kind: has_many, foreign_key: customer }
+  invoices: { table: invoice, kind: has_many, foreign_key: customer }
+  opportunities: { table: opportunity, kind: has_many, foreign_key: customer }

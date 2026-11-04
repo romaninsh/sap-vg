@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Warehouses
+body:
+  - kind: binder
+    name: warehouses
+    observe: warehouse
+    params:
+      columns:
+        code: { label: Code, width: 80 }
+        name: { label: Warehouse, width: 220 }
+        city: { label: Location }
+        stock_value: { label: Stock value }

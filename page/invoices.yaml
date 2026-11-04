@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Invoices
+body:
+  - kind: binder
+    name: invoices
+    observe: invoice
+    params:
+      default_sort: { column: issued_on, direction: desc }
+      filter: [state, status, customer, ">outstanding", ">=issued_on", "<=due_on"]
+      filters:
+        - { label: Overdue, column: state, value: overdue, default: false }
+        - { label: Open, column: state, value: open, default: false }
+        - { label: Drafts, column: status, value: draft, default: false }
+      columns:
+        number: { label: Invoice, pin: true, width: 100 }
+        customer.name: { label: Customer, width: 200 }
+        sales_order.number: { label: Sales order }
+        issued_on: { label: Issued }
+        due_on: { label: Due }
+        amount: { label: Amount }
+        paid: { label: Paid, color: { muted: ["0"] } }
+        outstanding: { label: Outstanding, color: { muted: ["0"] } }
+        state:
+          label: Payment
+          labels: { paid: Paid, open: Open, overdue: Overdue, draft: Draft, void: Void }
+          color: { success: [paid], blue: [open], danger: [overdue], muted: [draft, void] }
+        days_overdue: { label: Days late, color: { muted: ["0"], danger: [">=60"], warning: [">=1"] } }
+      row_actions:
+        - label: History
+          icon: Clock
+          navigate: history
+          args: { col: '"invoice"', id: row.id, number: row.number }
+        - label: Issue invoice
+          icon: Send
+          when: 'row.status == "draft"'
+          action: |
+            row.status = "issued";
+            row.flash();
+            notify(row.number + " issued and booked to receivables");
+        - label: Record payment
+          icon: Banknote
+          when: 'row.status == "issued" && row.outstanding > 0'
+          action: |
+            let r = actions.record_payment(#{ number: row.number, amount: row.outstanding / 100.0 });
+            let p = #{ invoice: row.id, amount: (r.amount * 100.0).round().to_int(), method: if r.by_card == true { "card" } else { "bank_transfer" } };
+            if r.paid_on != () { p.paid_on = r.paid_on; }
+            table("payment").insert(p);
+            notify("Payment recorded on " + row.number);
+        - label: Void invoice
+          icon: Ban
+          when: 'row.status == "issued" && row.paid == 0'
+          action: |
+            if actions.confirm_void(row) { row.status = "void"; row.flash(); }
+        - label: Copy invoice number
+          icon: Copy
+          copy: number

@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Unit price defaults to the product's list price; amount is computed in the database.
+datasource: surrealdb
+title: Sales order lines
+columns:
+  id: { type: string, flags: [id] }
+  sales_order: { type: string, label: Order, flags: [mandatory], references: { table: sales_order, kind: has_one, name: sales_order } }
+  sales_order.number: { type: string, label: Order }
+  product: { type: string, label: Product, flags: [mandatory], references: { table: product, kind: has_one, name: product } }
+  product.name: { type: string, label: Product, flags: [title] }
+  product.sku: { type: string, label: SKU }
+  qty: { type: int, label: Qty, flags: [mandatory] }
+  unit_price: { type: int, label: Unit price, unit: { currency: "$", minor_units: true } }
+  discount_pct: { type: int, label: Discount % }
+  amount: { type: int, label: Amount, flags: [calculated], unit: { currency: "$", minor_units: true } }

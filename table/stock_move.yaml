@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# The inventory ledger. Shipping, receiving and production write it; people add adjustments only.
+datasource: surrealdb
+title: Stock movements
+deny: { actions: [update, delete, delete_all] }
+columns:
+  id: { type: string, flags: [id] }
+  moved_at: { type: timestamp, label: When, time_precision: minutes }
+  product: { type: string, label: Product, flags: [mandatory], references: { table: product, kind: has_one, name: product } }
+  product.name: { type: string, label: Product, flags: [title] }
+  product.sku: { type: string, label: SKU }
+  warehouse: { type: string, label: Warehouse, flags: [mandatory], references: { table: warehouse, kind: has_one, name: warehouse } }
+  warehouse.code: { type: string, label: Warehouse }
+  kind: { type: string, label: Movement, enum: [opening, receipt, issue, production, consumption, adjustment] }
+  qty: { type: int, label: Qty, flags: [mandatory] }
+  reference: { type: string, label: Reference, flags: [searchable] }
+  value: { type: int, label: Value, unit: { currency: "$", minor_units: true }, expr: 'surreal::expr("qty * product.cost_price")' }

@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Each receipt posts Bank / Accounts receivable in the database.
+datasource: surrealdb
+title: Customer payments
+deny: { actions: [update, delete, delete_all] }
+columns:
+  id: { type: string, flags: [id] }
+  invoice: { type: string, label: Invoice, flags: [mandatory], references: { table: invoice, kind: has_one, name: invoice } }
+  invoice.number: { type: string, label: Invoice, flags: [title] }
+  invoice.customer.name: { type: string, label: Customer }
+  paid_on: { type: date, label: Received }
+  amount: { type: int, label: Amount, flags: [mandatory], unit: { currency: "$", minor_units: true } }
+  method: { type: string, label: Method, enum: [bank_transfer, card, cheque, cash] }

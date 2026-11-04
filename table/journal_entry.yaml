@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# The database refuses to post an unbalanced entry and to delete a posted one (tests/schema.surql).
+datasource: surrealdb
+title: Journal entries
+columns:
+  id: { type: string, flags: [id] }
+  number: { type: string, label: Entry, flags: [title, searchable] }
+  posted_on: { type: date, label: Date }
+  memo: { type: string, label: Memo, flags: [mandatory, searchable] }
+  source: { type: string, label: Source, enum: [manual, sales, purchasing, inventory, payroll, opening] }
+  status: { type: string, label: Status, enum: [draft, posted] }
+  total_debit: { type: int, label: Debit, unit: { currency: "$", minor_units: true },
+                 expr: 'surreal::expr("math::sum(<~journal_line.debit)")' }
+  total_credit: { type: int, label: Credit, unit: { currency: "$", minor_units: true },
+                  expr: 'surreal::expr("math::sum(<~journal_line.credit)")' }
+  balanced: { type: bool, label: Balanced,
+              expr: 'surreal::expr("math::sum(<~journal_line.debit) = math::sum(<~journal_line.credit)")' }
+  deps_last_updated: { type: timestamp, flags: [hidden] }
+references:
+  lines: { table: journal_line, kind: has_many, foreign_key: entry }

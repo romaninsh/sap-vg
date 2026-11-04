@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=./action-schema-1.json
+# One draft purchase order per preferred supplier, topping each low item up to twice its reorder level
+# (what is already on a draft or open PO counts). Used by the desktop Products toolbar and the web admin.
+kind: script
+body: |
+  let orders = #{};
+  let lines = 0;
+  for p in table("product").where("kind", "in", ["raw", "trading"]).where("active", true).list() {
+    if p.supplier == () || p.on_hand >= p.reorder_level { continue; }
+    let open = 0;
+    for l in table("purchase_order_line").where("product", p.id).list() {
+      let po = table("purchase_order").get(l.purchase_order);
+      if po.status == "draft" || po.status == "ordered" { open += l.qty; }
+    }
+    let qty = p.reorder_level * 2 - p.on_hand - open;
+    if qty <= 0 { continue; }
+    if !(p.supplier in orders) {
+      orders[p.supplier] = "purchase_order:" + table("purchase_order").insert(#{ supplier: p.supplier, status: "draft" });
+    }
+    table("purchase_order_line").insert(#{ purchase_order: orders[p.supplier], product: p.id, qty: qty });
+    lines += 1;
+  }
+  if lines == 0 { notify("Nothing to reorder: every item is above its reorder level or already on order"); }
+  else { notify(`Created ${orders.len()} draft purchase orders with ${lines} lines`); }
+  #{ orders: orders.len(), lines: lines }

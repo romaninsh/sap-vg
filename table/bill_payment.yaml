@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Each payment posts Accounts payable / Bank in the database.
+datasource: surrealdb
+title: Supplier payments
+deny: { actions: [update, delete, delete_all] }
+columns:
+  id: { type: string, flags: [id] }
+  bill: { type: string, label: Bill, flags: [mandatory], references: { table: bill, kind: has_one, name: bill } }
+  bill.number: { type: string, label: Bill, flags: [title] }
+  bill.supplier.name: { type: string, label: Supplier }
+  paid_on: { type: date, label: Paid }
+  amount: { type: int, label: Amount, flags: [mandatory], unit: { currency: "$", minor_units: true } }
+  method: { type: string, label: Method, enum: [bank_transfer, card, cheque, cash] }

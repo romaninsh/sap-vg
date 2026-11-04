@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=./action-schema-1.json
+# Called from a purchase order row. Cost defaults to the product's standard cost.
+kind: form
+dialog:
+  title: "Add line to ${row.number}"
+  description: "Leave the cost empty to use the standard cost."
+  confirm_label: Add line
+form:
+  fields:
+    - name: product
+      type: string
+      label: Product
+      widget: dropdown
+      option_label: name
+      options: |
+        table("product").where("kind", "in", ["raw", "trading"])
+    - { name: qty, type: int, label: Quantity }
+    - { name: unit_cost, type: float, label: "Unit cost ($)", required: false, placeholder: "standard cost" }

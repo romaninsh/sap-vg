@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Customers
+body:
+  - kind: binder
+    name: customers
+    observe: customer
+    params:
+      default_sort: { column: revenue, direction: desc }
+      filter: [segment, status, sales_rep, country, ">open_balance"]
+      columns:
+        code: { label: Code, width: 80 }
+        name: { label: Customer, pin: true, width: 220 }
+        segment:
+          label: Segment
+          labels: { enterprise: Enterprise, smb: SMB, public: Public sector, retail: Retail }
+          color: { blue: [enterprise], cyan: [public], muted: [smb, retail] }
+        city: { label: City }
+        sales_rep.name: { label: Account manager }
+        revenue: { label: Revenue (12 mo) }
+        open_balance: { label: Open balance, color: { muted: ["0"] } }
+        credit_limit: { label: Credit limit }
+        payment_terms: { label: Terms, labels: { "0": Prepaid, "15": Net 15, "30": Net 30, "45": Net 45, "60": Net 60 } }
+        status: { label: Status, labels: { active: Active, blocked: Blocked }, color: { success: [active], danger: [blocked] } }

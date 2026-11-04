@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=./table-schema-1.json
+datasource: surrealdb
+title: Journal lines
+columns:
+  id: { type: string, flags: [id] }
+  entry: { type: string, label: Entry, flags: [mandatory], references: { table: journal_entry, kind: has_one, name: entry } }
+  entry.number: { type: string, label: Entry }
+  entry.posted_on: { type: date, label: Date }
+  entry.memo: { type: string, label: Memo }
+  account: { type: string, label: Account, flags: [mandatory], references: { table: gl_account, kind: has_one, name: account } }
+  account.code: { type: string, label: Account }
+  account.name: { type: string, label: Account name, flags: [title] }
+  debit: { type: int, label: Debit, unit: { currency: "$", minor_units: true } }
+  credit: { type: int, label: Credit, unit: { currency: "$", minor_units: true } }
+  memo: { type: string, label: Line note }

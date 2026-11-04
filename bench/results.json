@@ -1,0 +1,325 @@
+{
+ "scales": [
+  1000,
+  4000,
+  10000
+ ],
+ "runs": 5,
+ "results": [
+  {
+   "orders": 1000,
+   "query": "page_40_by_date",
+   "rows": 40,
+   "surreal-parent": [
+    166.50234,
+    false
+   ],
+   "surreal-refs": [
+    2.277711,
+    false
+   ],
+   "postgres": [
+    0.213,
+    false
+   ],
+   "sqlite": [
+    0.04845880903303623,
+    false
+   ]
+  },
+  {
+   "orders": 1000,
+   "query": "all_orders_with_totals",
+   "rows": 1000,
+   "surreal-parent": [
+    4087.772418,
+    false
+   ],
+   "surreal-refs": [
+    15.627646,
+    false
+   ],
+   "postgres": [
+    2.223,
+    false
+   ],
+   "sqlite": [
+    1.0078749619424343,
+    false
+   ]
+  },
+  {
+   "orders": 1000,
+   "query": "page_40_by_total",
+   "rows": 40,
+   "surreal-parent": [
+    1726.796569,
+    false
+   ],
+   "surreal-refs": [
+    7.528094,
+    false
+   ],
+   "postgres": [
+    0.788,
+    false
+   ],
+   "sqlite": [
+    0.36037503741681576,
+    false
+   ]
+  },
+  {
+   "orders": 1000,
+   "query": "overdue_invoices",
+   "rows": 110,
+   "surreal-parent": [
+    332.020097,
+    false
+   ],
+   "surreal-refs": [
+    3.672463,
+    false
+   ],
+   "postgres": [
+    0.515,
+    false
+   ],
+   "sqlite": [
+    0.2329580020159483,
+    false
+   ]
+  },
+  {
+   "orders": 1000,
+   "query": "lines_of_one_order",
+   "rows": 4,
+   "surreal-parent": [
+    0.177,
+    false
+   ],
+   "surreal-refs": [
+    0.160083,
+    false
+   ],
+   "postgres": [
+    0.019,
+    false
+   ],
+   "sqlite": [
+    0.005583977326750755,
+    false
+   ]
+  },
+  {
+   "orders": 4000,
+   "query": "page_40_by_date",
+   "rows": 40,
+   "surreal-parent": [
+    665.598778,
+    false
+   ],
+   "surreal-refs": [
+    2.074169,
+    false
+   ],
+   "postgres": [
+    0.269,
+    false
+   ],
+   "sqlite": [
+    0.06716581992805004,
+    false
+   ]
+  },
+  {
+   "orders": 4000,
+   "query": "all_orders_with_totals",
+   "rows": 4000,
+   "surreal-parent": [
+    67230.22380800001,
+    true
+   ],
+   "surreal-refs": [
+    63.24529,
+    false
+   ],
+   "postgres": [
+    13.925,
+    false
+   ],
+   "sqlite": [
+    4.821459064260125,
+    false
+   ]
+  },
+  {
+   "orders": 4000,
+   "query": "page_40_by_total",
+   "rows": 40,
+   "surreal-parent": [
+    27952.010881,
+    true
+   ],
+   "surreal-refs": [
+    30.645415,
+    false
+   ],
+   "postgres": [
+    4.242,
+    false
+   ],
+   "sqlite": [
+    1.60287506878376,
+    false
+   ]
+  },
+  {
+   "orders": 4000,
+   "query": "overdue_invoices",
+   "rows": 450,
+   "surreal-parent": [
+    5226.2673460000005,
+    false
+   ],
+   "surreal-refs": [
+    14.084394,
+    false
+   ],
+   "postgres": [
+    2.073,
+    false
+   ],
+   "sqlite": [
+    0.9790828917175531,
+    false
+   ]
+  },
+  {
+   "orders": 4000,
+   "query": "lines_of_one_order",
+   "rows": 4,
+   "surreal-parent": [
+    0.224,
+    false
+   ],
+   "surreal-refs": [
+    0.22079200000000002,
+    false
+   ],
+   "postgres": [
+    0.027,
+    false
+   ],
+   "sqlite": [
+    0.005458015948534012,
+    false
+   ]
+  },
+  {
+   "orders": 10000,
+   "query": "page_40_by_date",
+   "rows": 40,
+   "surreal-parent": [
+    1484.100045,
+    false
+   ],
+   "surreal-refs": [
+    1.940835,
+    false
+   ],
+   "postgres": [
+    0.283,
+    false
+   ],
+   "sqlite": [
+    0.050666043534874916,
+    false
+   ]
+  },
+  {
+   "orders": 10000,
+   "query": "all_orders_with_totals",
+   "rows": 10000,
+   "surreal-parent": [
+    NaN,
+    true
+   ],
+   "surreal-refs": [
+    151.286487,
+    false
+   ],
+   "postgres": [
+    28.362,
+    false
+   ],
+   "sqlite": [
+    11.086791986599565,
+    false
+   ]
+  },
+  {
+   "orders": 10000,
+   "query": "page_40_by_total",
+   "rows": 40,
+   "surreal-parent": [
+    NaN,
+    true
+   ],
+   "surreal-refs": [
+    74.836014,
+    false
+   ],
+   "postgres": [
+    7.675,
+    false
+   ],
+   "sqlite": [
+    3.9859169628471136,
+    false
+   ]
+  },
+  {
+   "orders": 10000,
+   "query": "overdue_invoices",
+   "rows": 1126,
+   "surreal-parent": [
+    NaN,
+    true
+   ],
+   "surreal-refs": [
+    39.720051,
+    false
+   ],
+   "postgres": [
+    5.064,
+    false
+   ],
+   "sqlite": [
+    2.4885828606784344,
+    false
+   ]
+  },
+  {
+   "orders": 10000,
+   "query": "lines_of_one_order",
+   "rows": 3,
+   "surreal-parent": [
+    0.228251,
+    false
+   ],
+   "surreal-refs": [
+    0.2245,
+    false
+   ],
+   "postgres": [
+    0.068,
+    false
+   ],
+   "sqlite": [
+    0.00537489540874958,
+    false
+   ]
+  }
+ ]
+}

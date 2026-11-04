@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=./action-schema-1.json
+# Payment of one supplier bill. The caller writes the bill_payment row.
+kind: form
+dialog:
+  title: "Pay ${row.number}"
+  description: "Amount in dollars, prefilled with what is still owed. Paying also books it in the ledger."
+  confirm_label: Pay
+form:
+  fields:
+    - { name: amount, type: float, label: "Amount ($)" }
+    - { name: paid_on, type: date, label: Paid on, required: false, placeholder: "today (YYYY-MM-DD)" }

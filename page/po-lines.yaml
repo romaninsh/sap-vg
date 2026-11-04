@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=./page-schema-1.json
+# Also sets the columns of the "Lines" tab on Purchase orders and "Purchase lines" on Products.
+title: Purchase order lines
+body:
+  - kind: binder
+    name: po_lines
+    observe: purchase_order_line
+    params:
+      default_sort: { column: purchase_order.number, direction: desc }
+      filter: [product, purchase_order, ">amount"]
+      columns:
+        purchase_order.number: { label: PO, width: 90 }
+        product.name: { label: Product, width: 220 }
+        qty: { label: Qty }
+        product.uom: { label: Unit, width: 60 }
+        unit_cost: { label: Unit cost }
+        amount: { label: Amount }

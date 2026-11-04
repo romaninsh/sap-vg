@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=./action-schema-1.json
+# Called from a sales order row: the line is written by the caller. Price defaults to the list price.
+kind: form
+dialog:
+  title: "Add line to ${row.number}"
+  description: "Leave the price empty to use the product's list price."
+  confirm_label: Add line
+form:
+  fields:
+    - name: product
+      type: string
+      label: Product
+      widget: dropdown
+      option_label: name
+      options: |
+        table("product").where("active", true).where("kind", "in", ["finished", "trading", "service"])
+    - { name: qty, type: int, label: Quantity, default: "1" }
+    - { name: discount_pct, type: int, label: "Discount %", required: false, placeholder: "0" }
+    - { name: unit_price, type: float, label: "Unit price ($)", required: false, placeholder: "list price" }

@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Opportunities
+body:
+  - kind: binder
+    name: opps
+    observe: opportunity
+    params:
+      default_sort: { column: expected_close, direction: asc }
+      filter: [stage, owner, customer, ">value"]
+      columns:
+        number: { label: No., width: 80 }
+        title: { label: Opportunity, pin: true, width: 240 }
+        customer.name: { label: Customer }
+        stage:
+          label: Stage
+          labels: { lead: Lead, qualified: Qualified, proposal: Proposal, negotiation: Negotiation, won: Won, lost: Lost }
+          color: { muted: [lead], blue: [qualified], cyan: [proposal], yellow: [negotiation], success: [won], danger: [lost] }
+        value: { label: Value }
+        probability: { label: Probability, render: progress }
+        weighted: { label: Weighted }
+        expected_close: { label: Expected close }
+        owner.name: { label: Owner }
+      row_actions:
+        - label: Mark won
+          icon: Trophy
+          when: 'row.stage != "won" && row.stage != "lost"'
+          action: |
+            row.set(#{ stage: "won", probability: 100 });
+            row.flash();
+        - label: Mark lost
+          icon: CircleX
+          when: 'row.stage != "won" && row.stage != "lost"'
+          action: |
+            row.set(#{ stage: "lost", probability: 0 });
+            row.flash();
+        - label: Create sales order
+          icon: ShoppingCart
+          when: 'row.stage == "won"'
+          action: |
+            table("sales_order").insert(#{ customer: row.customer, sales_rep: row.owner, status: "draft", customer_ref: row.number });
+            notify("Draft sales order created from " + row.number + " — add lines on Sales orders");

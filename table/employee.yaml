@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=./table-schema-1.json
+datasource: surrealdb
+title: Employees
+columns:
+  id: { type: string, flags: [id] }
+  name: { type: string, label: Name, flags: [mandatory, title, searchable] }
+  title: { type: string, label: Job title, flags: [searchable] }
+  department: { type: string, label: Department, flags: [mandatory], references: { table: department, kind: has_one, name: department } }
+  department.name: { type: string, label: Department }
+  manager: { type: string, label: Manager, references: { table: employee, kind: has_one, name: manager } }
+  manager.name: { type: string, label: Manager }
+  email: { type: string, label: Email, flags: [mandatory, searchable] }
+  phone: { type: string, label: Phone }
+  hired_on: { type: date, label: Hired }
+  status: { type: string, label: Status, enum: [active, on_leave, terminated] }
+  salary: { type: int, label: Salary, unit: { currency: "$", minor_units: true } }
+  years: { type: int, label: Years, expr: 'surreal::expr("math::floor(duration::days(time::now() - hired_on) / 365)")' }
+references:
+  reports: { table: employee, kind: has_many, foreign_key: manager }
+  leave: { table: leave_request, kind: has_many, foreign_key: employee }
+  accounts: { table: customer, kind: has_many, foreign_key: sales_rep }

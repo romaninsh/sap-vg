@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=./page-schema-1.json
+# One department: edit it, and its people. Opened from the Departments tree with args id, name.
+title: "${args.name}"
+body:
+  - kind: row
+    height: 300
+    children:
+      - kind: form
+        observe: department
+        record: "${args.id}"
+        params:
+          fields: [name, cost_center, parent, head, budget]
+  - kind: row
+    children:
+      - kind: spacer
+      - kind: column
+        align: end
+        grow: false
+        children:
+          - kind: button
+            params:
+              label: Delete department
+              icon: Trash2
+              color: danger
+              size: sm
+              action: |
+                if actions.confirm_delete_department(#{ name: args.name }) {
+                  actions.delete_department(#{ id: args.id });
+                  close();
+                }
+  - kind: label
+    params: { text: People, style: heading, icon: Users }
+  - kind: grid
+    observe: { script: 'scenery("employee").where("department", args.id)' }
+    params:
+      columns:
+        name: { label: Name, width: 180 }
+        title: { label: Job title, width: 200 }
+        manager.name: { label: Manager }
+        status:
+          label: Status
+          labels: { active: Active, on_leave: On leave, terminated: Left }
+          color: { success: [active], warning: [on_leave], muted: [terminated] }
+        salary: { label: Salary }
+  - kind: label
+    params: { text: Sub-departments, style: heading, icon: Network }
+  - kind: grid
+    observe: { script: 'scenery("department").where("parent", args.id)' }
+    params:
+      columns:
+        name: { label: Department, width: 220 }
+        cost_center: { label: Cost centre }
+        head.name: { label: Head }
+        headcount: { label: People }
+        budget: { label: Annual budget }

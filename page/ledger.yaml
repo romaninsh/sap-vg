@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=./page-schema-1.json
+# Every posting line. Also sets the columns of the "Lines" tab on Journal entries and Chart of accounts.
+title: General ledger
+body:
+  - kind: binder
+    name: ledger
+    observe: journal_line
+    params:
+      default_sort: { column: entry.posted_on, direction: desc }
+      filter: [account, entry, ">debit", ">credit"]
+      columns:
+        entry.posted_on: { label: Date }
+        entry.number: { label: Entry, width: 100 }
+        account.code: { label: Account, width: 80 }
+        account.name: { label: Account name, width: 200 }
+        debit: { label: Debit, color: { muted: ["0"] } }
+        credit: { label: Credit, color: { muted: ["0"] } }
+        entry.memo: { label: Memo, width: 260 }
+        memo: { label: Line note }

@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Supplier bills
+body:
+  - kind: binder
+    name: bills
+    observe: bill
+    params:
+      default_sort: { column: due_on, direction: asc }
+      filter: [state, status, supplier, ">outstanding", "<=due_on"]
+      filters:
+        - { label: Due this week, column: state, value: due_soon, default: false }
+        - { label: Overdue, column: state, value: overdue, default: false }
+        - { label: To approve, column: status, value: draft, default: false }
+      columns:
+        number: { label: Bill, pin: true, width: 100 }
+        supplier.name: { label: Supplier, width: 200 }
+        supplier_ref: { label: Their invoice }
+        purchase_order.number: { label: PO }
+        received_on: { label: Received }
+        due_on: { label: Due }
+        amount: { label: Amount }
+        outstanding: { label: Outstanding, color: { muted: ["0"] } }
+        state:
+          label: Payment
+          labels: { paid: Paid, open: Open, due_soon: Due this week, overdue: Overdue, draft: To approve, void: Void }
+          color: { success: [paid], blue: [open], warning: [due_soon, draft], danger: [overdue], muted: [void] }
+      row_actions:
+        - label: History
+          icon: Clock
+          navigate: history
+          args: { col: '"bill"', id: row.id, number: row.number }
+        - label: Approve bill
+          icon: CircleCheck
+          when: 'row.status == "draft"'
+          action: |
+            row.status = "approved";
+            row.flash();
+            notify(row.number + " approved and booked to payables");
+        - label: Pay bill
+          icon: Banknote
+          when: 'row.status == "approved" && row.outstanding > 0'
+          action: |
+            let r = actions.pay_bill(#{ number: row.number, amount: row.outstanding / 100.0 });
+            let p = #{ bill: row.id, amount: (r.amount * 100.0).round().to_int() };
+            if r.paid_on != () { p.paid_on = r.paid_on; }
+            table("bill_payment").insert(p);
+            notify("Payment recorded on " + row.number);
+        - label: Void bill
+          icon: Ban
+          when: 'row.status == "approved" && row.paid == 0'
+          action: |
+            if actions.confirm_void(row) { row.status = "void"; row.flash(); }

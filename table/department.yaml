@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Org structure: `parent` nests departments; the database refuses loops and deleting non-empty departments.
+datasource: surrealdb
+title: Departments
+columns:
+  id: { type: string, flags: [id] }
+  name: { type: string, label: Department, flags: [mandatory, title, searchable] }
+  cost_center: { type: string, label: Cost centre, flags: [searchable] }
+  parent: { type: string, label: Reports to, references: { table: department, kind: has_one, name: parent } }
+  parent.name: { type: string, label: Reports to }
+  head: { type: string, label: Head, references: { table: employee, kind: has_one, name: head } }
+  head.name: { type: string, label: Head }
+  rank: { type: int, label: Order, flags: [hidden] }
+  budget: { type: int, label: Annual budget, unit: { currency: "$", minor_units: true } }
+  # Own figures (this department only); the tree page totals them per branch.
+  headcount: { type: int, label: Headcount, expr: 'surreal::expr("count(<~employee[WHERE status != ''terminated''])")' }
+  payroll: { type: int, label: Annual payroll, unit: { currency: "$", minor_units: true },
+             expr: 'surreal::expr("math::sum(<~employee[WHERE status != ''terminated''].salary)")' }
+  # Whole dollars, for tree rollups (a rollup sums the raw numbers).
+  payroll_usd: { type: int, label: Payroll ($), expr: 'surreal::expr("<int> math::round(math::sum(<~employee[WHERE status != ''terminated''].salary) / 100)")' }
+  budget_usd: { type: int, label: Budget ($), expr: 'surreal::expr("<int> math::round(budget / 100)")' }
+references:
+  subdepartments: { table: department, kind: has_many, foreign_key: parent }
+  employees: { table: employee, kind: has_many, foreign_key: department }

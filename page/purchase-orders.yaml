@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Purchase orders
+body:
+  - kind: binder
+    name: pos
+    observe: purchase_order
+    params:
+      default_sort: { column: order_date, direction: desc }
+      filter: [status, supplier, buyer, late, ">total", ">=order_date"]
+      filters:
+        - { label: Awaiting delivery, column: status, value: ordered, default: false }
+        - { label: Late, column: late, value: true, default: false }
+        - { label: Drafts, column: status, value: draft, default: false }
+      columns:
+        number: { label: PO, pin: true, width: 90 }
+        supplier.name: { label: Supplier, width: 200 }
+        order_date: { label: Ordered }
+        expected_on: { label: Expected }
+        received_on: { label: Received }
+        status:
+          label: Status
+          labels: { draft: Draft, ordered: Ordered, received: Received, cancelled: Cancelled }
+          color: { muted: [draft, cancelled], blue: [ordered], success: [received] }
+        late: { label: Late, labels: { "true": Late, "false": "" }, color: { danger: ["true"] } }
+        line_count: { label: Lines, width: 60 }
+        total: { label: Total }
+        buyer.name: { label: Buyer }
+        warehouse.name: { label: Deliver to }
+      row_actions:
+        - label: History
+          icon: Clock
+          navigate: history
+          args: { col: '"purchase_order"', id: row.id, number: row.number }
+        - label: Add line
+          icon: Plus
+          when: 'row.status == "draft" || row.status == "ordered"'
+          action: |
+            let r = actions.add_po_line(row);
+            let line = #{ purchase_order: row.id, product: r.product, qty: r.qty };
+            if r.unit_cost != () { line.unit_cost = (r.unit_cost * 100.0).round().to_int(); }
+            table("purchase_order_line").insert(line);
+            notify("Line added to " + row.number);
+        - label: Send to supplier
+          icon: Send
+          when: 'row.status == "draft"'
+          action: |
+            if row.line_count == 0 { throw "Add at least one line first"; }
+            row.status = "ordered";
+            row.flash();
+        - label: Receive goods
+          icon: ClipboardCheck
+          when: 'row.status == "ordered"'
+          action: |
+            row.status = "received";
+            row.flash();
+            notify(row.number + " received into stock");
+        - label: Enter supplier bill
+          icon: Receipt
+          when: 'row.status == "received"'
+          action: |
+            if table("bill").where("purchase_order", row.id).count() > 0 { throw "A bill already exists for " + row.number; }
+            table("bill").insert(#{ supplier: row.supplier, purchase_order: row.id, amount: row.total, status: "draft" });
+            notify("Draft bill created for " + row.number + " — approve it on Supplier bills");
+        - label: Cancel order
+          icon: Ban
+          when: 'row.status == "draft" || row.status == "ordered"'
+          action: |
+            if actions.confirm_cancel(row) { row.status = "cancelled"; row.flash(); }

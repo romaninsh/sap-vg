@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Sales orders
+body:
+  - kind: binder
+    name: orders
+    observe: sales_order
+    params:
+      default_sort: { column: order_date, direction: desc }
+      filter: [status, customer, sales_rep, warehouse, ">total", ">=order_date"]
+      filters:
+        - { label: Open orders, column: status, value: confirmed, default: false }
+        - { label: Drafts, column: status, value: draft, default: false }
+        - { label: To invoice, column: billing, value: to_invoice, default: false }
+      columns:
+        number: { label: Order, pin: true, width: 90 }
+        customer.name: { label: Customer, width: 200 }
+        order_date: { label: Ordered }
+        requested_on: { label: Requested }
+        shipped_on: { label: Shipped }
+        status:
+          label: Status
+          labels: { draft: Draft, confirmed: Confirmed, shipped: Shipped, cancelled: Cancelled }
+          color: { muted: [draft, cancelled], blue: [confirmed], success: [shipped] }
+        billing:
+          label: Billing
+          labels: { invoiced: Invoiced, to_invoice: To invoice, "": "" }
+          color: { success: [invoiced], warning: [to_invoice] }
+        line_count: { label: Lines, width: 60 }
+        total: { label: Total }
+        warehouse.name: { label: Ship from }
+        sales_rep.name: { label: Sales rep }
+        customer_ref: { label: Customer PO }
+      row_actions:
+        - label: History
+          icon: Clock
+          navigate: history
+          args: { col: '"sales_order"', id: row.id, number: row.number }
+        - label: Add line
+          icon: Plus
+          when: 'row.status == "draft" || row.status == "confirmed"'
+          action: |
+            let r = actions.add_order_line(row);
+            let line = #{ sales_order: row.id, product: r.product, qty: r.qty, discount_pct: r.discount_pct ?? 0 };
+            if r.unit_price != () { line.unit_price = (r.unit_price * 100.0).round().to_int(); }
+            table("sales_order_line").insert(line);
+            notify("Line added to " + row.number);
+        - label: Confirm order
+          icon: CircleCheck
+          when: 'row.status == "draft"'
+          action: |
+            if row.line_count == 0 { throw "Add at least one line first"; }
+            row.status = "confirmed";
+            row.flash();
+        - label: Ship order
+          icon: Truck
+          when: 'row.status == "confirmed"'
+          action: |
+            if row.line_count == 0 { throw "This order has no lines"; }
+            row.status = "shipped";
+            row.flash();
+            notify(row.number + " shipped — stock issued and cost of goods booked");
+        - label: Create invoice
+          icon: FileText
+          when: 'row.billing == "to_invoice"'
+          action: |
+            table("invoice").insert(#{ customer: row.customer, sales_order: row.id, amount: row.total, status: "issued" });
+            notify("Invoice issued for " + row.number);
+        - label: Cancel order
+          icon: Ban
+          when: 'row.status == "draft" || row.status == "confirmed"'
+          action: |
+            if actions.confirm_cancel(row) { row.status = "cancelled"; row.flash(); }
+        - label: Copy order number
+          icon: Copy
+          copy: number

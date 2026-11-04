@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Journal entries
+body:
+  - kind: binder
+    name: journal
+    observe: journal_entry
+    params:
+      default_sort: { column: number, direction: desc }
+      filter: [source, status, "~memo", ">=posted_on"]
+      filters:
+        - { label: Drafts, column: status, value: draft, default: false }
+        - { label: Manual only, column: source, value: manual, default: false }
+      columns:
+        number: { label: Entry, pin: true, width: 100 }
+        posted_on: { label: Date }
+        memo: { label: Memo, width: 280 }
+        source:
+          label: Source
+          labels: { manual: Manual, sales: Sales, purchasing: Purchasing, inventory: Inventory, payroll: Payroll, opening: Opening }
+          color: { muted: [manual, opening], success: [sales], blue: [purchasing], yellow: [inventory], magenta: [payroll] }
+        total_debit: { label: Debit }
+        total_credit: { label: Credit }
+        balanced: { label: Balanced, labels: { "true": "✓", "false": Unbalanced }, color: { success: ["true"], danger: ["false"] } }
+        status: { label: Status, labels: { draft: Draft, posted: Posted }, color: { warning: [draft], success: [posted] } }
+      row_actions:
+        - label: History
+          icon: Clock
+          navigate: history
+          args: { col: '"journal_entry"', id: row.id, number: row.number }
+        - label: Add line
+          icon: Plus
+          when: 'row.status == "draft"'
+          action: |
+            let r = actions.add_journal_line(row);
+            let cents = (r.amount * 100.0).round().to_int();
+            let credit = r.is_credit == true;
+            let l = #{ entry: row.id, account: r.account, debit: if credit { 0 } else { cents }, credit: if credit { cents } else { 0 } };
+            if r.memo != () { l.memo = r.memo; }
+            table("journal_line").insert(l);
+        - label: Post entry
+          icon: ClipboardCheck
+          when: 'row.status == "draft"'
+          action: |
+            if !row.balanced { throw "Debits and credits don't match yet"; }
+            row.status = "posted";
+            row.flash();
+            notify(row.number + " posted to the ledger");

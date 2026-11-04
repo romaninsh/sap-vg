@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Unit cost defaults to the product's standard cost; amount is computed in the database.
+datasource: surrealdb
+title: Purchase order lines
+columns:
+  id: { type: string, flags: [id] }
+  purchase_order: { type: string, label: PO, flags: [mandatory], references: { table: purchase_order, kind: has_one, name: purchase_order } }
+  purchase_order.number: { type: string, label: PO }
+  product: { type: string, label: Product, flags: [mandatory], references: { table: product, kind: has_one, name: product } }
+  product.name: { type: string, label: Product, flags: [title] }
+  product.uom: { type: string, label: Unit }
+  qty: { type: int, label: Qty, flags: [mandatory] }
+  unit_cost: { type: int, label: Unit cost, unit: { currency: "$", minor_units: true } }
+  amount: { type: int, label: Amount, flags: [calculated], unit: { currency: "$", minor_units: true } }

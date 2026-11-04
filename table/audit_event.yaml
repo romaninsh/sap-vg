@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Written only by Vantage's logger (application.yaml log_changes / log_events). Read-only everywhere.
+# Context columns referencing a document are filled from the changed row, so a document's history,
+# lines included, is one filter: where("sales_order", id).
+datasource: surrealdb
+title: Audit log
+columns:
+  id: { type: string, flags: [id] }
+  at: { type: timestamp, label: When }
+  who: { type: string, label: Who, flags: [searchable] }
+  action: { type: string, label: Action, flags: [searchable] }
+  table: { type: string, label: Table }
+  record: { type: string, label: Record, flags: [searchable] }
+  event: { type: string, label: Message }
+  group: { type: string, flags: [hidden] }
+  before: { type: string, label: Before }
+  after: { type: string, label: After }
+  args: { type: string, label: Arguments }
+  summary: { type: string, label: Summary, flags: [title, searchable] }
+  customer: { type: string, flags: [hidden], references: customer }
+  supplier: { type: string, flags: [hidden], references: supplier }
+  product: { type: string, flags: [hidden], references: product }
+  employee: { type: string, flags: [hidden], references: employee }
+  sales_order: { type: string, flags: [hidden], references: sales_order }
+  purchase_order: { type: string, flags: [hidden], references: purchase_order }
+  invoice: { type: string, flags: [hidden], references: invoice }
+  bill: { type: string, flags: [hidden], references: bill }
+  journal_entry: { type: string, flags: [hidden], references: journal_entry }
+  work_order: { type: string, flags: [hidden], references: work_order }

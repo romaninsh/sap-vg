@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Receivables aging: what customers still owe, by days past due.
+datasource: surrealdb
+title: Receivables aging
+columns:
+  id: { type: string, flags: [id] }
+  bucket: { type: string, label: Age, flags: [title] }
+  ord: { type: int, flags: [hidden] }
+  dollars: { type: int, label: Outstanding, unit: { currency: "$" } }
+  display: { type: string, label: Outstanding }
+  invoices: { type: int, label: Invoices }
+surreal:
+  rhai: |
+    let open = surreal::select()
+        .expression(surreal::expr("amount - paid_amount").alias("owed"))
+        .expression(surreal::expr("IF due_on >= time::floor(time::now(), 1d) THEN 0 ELSE duration::days(time::floor(time::now(), 1d) - time::floor(due_on, 1d)) END").alias("late"))
+        .from("invoice")
+        .where(surreal::expr("status = 'issued'"));
+    let bucketed = surreal::select()
+        .field("owed")
+        .expression(surreal::expr("IF late = 0 THEN 1 ELSE IF late <= 30 THEN 2 ELSE IF late <= 60 THEN 3 ELSE IF late <= 90 THEN 4 ELSE 5 END").alias("ord"))
+        .from(open.subquery())
+        .where(surreal::expr("owed > 0"));
+    let grouped = surreal::select()
+        .field("ord")
+        .expression(surreal::expr("math::sum(owed)").alias("owed"))
+        .expression(surreal::expr("count()").alias("invoices"))
+        .from(bucketed.subquery())
+        .group_by(surreal::ident("ord"));
+    surreal::select()
+        .from(grouped.subquery())
+        .expression(surreal::fx("type::record", [surreal::expr("'ar_aging'"), surreal::expr("string::concat('b', ord)")]).alias("id"))
+        .expression(surreal::expr("['', 'Not yet due', '1–30 days', '31–60 days', '61–90 days', 'Over 90 days'][ord]").alias("bucket"))
+        .field("ord")
+        .field("invoices")
+        .expression(surreal::expr("<int> math::round(owed / 100)").alias("dollars"))
+        .expression(surreal::expr("fn::usd(owed)").alias("display"))
+        .order_by(surreal::ident("ord"), "asc")

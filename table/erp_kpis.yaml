@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# One row of headline figures for the cockpit, money already formatted (fn::usd in tests/schema.surql).
+datasource: surrealdb
+title: Company KPIs
+columns:
+  id: { type: string, flags: [id] }
+  rev30_display: { type: string, label: Revenue (30 days) }
+  rev30_change: { type: string, label: Change vs previous 30 days }
+  rev30_note: { type: string, label: Comparison }
+  ar_display: { type: string, label: Receivables }
+  ar_note: { type: string, label: Overdue receivables }
+  ap_display: { type: string, label: Payables }
+  ap_note: { type: string, label: Payables due this week }
+  cash_display: { type: string, label: Cash }
+  stock_display: { type: string, label: Stock value }
+  backlog_display: { type: string, label: Order backlog }
+  backlog_note: { type: string, label: Open orders }
+  margin_display: { type: string, label: Gross margin (12 months) }
+surreal:
+  rhai: |
+    let figures = surreal::select()
+        .expression(surreal::expr("math::sum((SELECT VALUE amount FROM invoice WHERE status = 'issued' AND issued_on > time::now() - 30d))").alias("rev30"))
+        .expression(surreal::expr("math::sum((SELECT VALUE amount FROM invoice WHERE status = 'issued' AND issued_on > time::now() - 60d AND issued_on <= time::now() - 30d))").alias("rev_prev"))
+        .expression(surreal::expr("math::sum((SELECT VALUE amount - paid_amount FROM invoice WHERE status = 'issued'))").alias("ar_open"))
+        .expression(surreal::expr("math::sum((SELECT VALUE amount - paid_amount FROM invoice WHERE status = 'issued' AND due_on < time::floor(time::now(), 1d)))").alias("ar_overdue"))
+        .expression(surreal::expr("math::sum((SELECT VALUE amount - paid_amount FROM bill WHERE status = 'approved'))").alias("ap_open"))
+        .expression(surreal::expr("math::sum((SELECT VALUE amount - paid_amount FROM bill WHERE status = 'approved' AND due_on < time::floor(time::now(), 1d) + 8d))").alias("ap_week"))
+        .expression(surreal::expr("math::sum((SELECT VALUE debit - credit FROM journal_line WHERE account = gl_account:a1000 AND entry.status = 'posted'))").alias("cash"))
+        .expression(surreal::expr("math::sum((SELECT VALUE qty * product.cost_price FROM stock_move))").alias("stock"))
+        .expression(surreal::expr("math::sum((SELECT VALUE amount FROM sales_order_line WHERE sales_order.status INSIDE ['draft', 'confirmed']))").alias("backlog"))
+        .expression(surreal::expr("count((SELECT id FROM sales_order WHERE status INSIDE ['draft', 'confirmed']))").alias("backlog_n"))
+        .expression(surreal::expr("math::sum((SELECT VALUE credit - debit FROM journal_line WHERE account = gl_account:a4000 AND entry.posted_on > time::now() - 365d))").alias("rev12"))
+        .expression(surreal::expr("math::sum((SELECT VALUE debit - credit FROM journal_line WHERE account = gl_account:a5000 AND entry.posted_on > time::now() - 365d))").alias("cogs12"))
+        .from(surreal::expr("[0]"));
+    surreal::select()
+        .from(figures.subquery())
+        .expression(surreal::fx("type::record", [surreal::expr("'erp_kpis'"), surreal::expr("'all'")]).alias("id"))
+        .expression(surreal::expr("fn::usd(rev30)").alias("rev30_display"))
+        .expression(surreal::expr("IF rev_prev > 0 THEN string::concat(IF rev30 >= rev_prev THEN '+' ELSE '' END, <string> <int> math::round((rev30 - rev_prev) * 100 / rev_prev), '%') ELSE NONE END").alias("rev30_change"))
+        .expression(surreal::expr("'vs prior 30 days'").alias("rev30_note"))
+        .expression(surreal::expr("fn::usd(ar_open)").alias("ar_display"))
+        .expression(surreal::expr("string::concat(fn::usd(ar_overdue), ' overdue')").alias("ar_note"))
+        .expression(surreal::expr("fn::usd(ap_open)").alias("ap_display"))
+        .expression(surreal::expr("string::concat(fn::usd(ap_week), ' due within 7 days')").alias("ap_note"))
+        .expression(surreal::expr("fn::usd(cash)").alias("cash_display"))
+        .expression(surreal::expr("fn::usd(stock)").alias("stock_display"))
+        .expression(surreal::expr("fn::usd(backlog)").alias("backlog_display"))
+        .expression(surreal::expr("string::concat(<string> backlog_n, ' open orders')").alias("backlog_note"))
+        .expression(surreal::expr("IF rev12 > 0 THEN string::concat(<string> <int> math::round((rev12 - cogs12) * 100 / rev12), '%') ELSE '—' END").alias("margin_display"))

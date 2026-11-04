@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=./table-schema-1.json
+datasource: surrealdb
+title: Warehouses
+columns:
+  id: { type: string, flags: [id] }
+  code: { type: string, label: Code, flags: [mandatory, searchable] }
+  name: { type: string, label: Warehouse, flags: [mandatory, title, searchable] }
+  city: { type: string, label: Location }
+  stock_value: { type: int, label: Stock value, unit: { currency: "$", minor_units: true },
+                 expr: 'surreal::expr("math::sum(<~stock_move.map(|$m| $m.qty * $m.product.cost_price))")' }
+references:
+  movements: { table: stock_move, kind: has_many, foreign_key: warehouse }

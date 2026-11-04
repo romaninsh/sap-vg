@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=./table-schema-1.json
+datasource: surrealdb
+title: Product categories
+columns:
+  id: { type: string, flags: [id] }
+  name: { type: string, label: Category, flags: [mandatory, title, searchable] }
+references:
+  products: { table: product, kind: has_many, foreign_key: category }

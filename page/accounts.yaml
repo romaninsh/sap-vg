@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Chart of accounts
+body:
+  - kind: binder
+    name: accounts
+    observe: gl_account
+    params:
+      default_sort: { column: code, direction: asc }
+      filter: [kind]
+      columns:
+        code: { label: Account, pin: true, width: 80 }
+        name: { label: Name, width: 240 }
+        kind:
+          label: Type
+          labels: { asset: Asset, liability: Liability, equity: Equity, revenue: Revenue, expense: Expense }
+          color: { blue: [asset], magenta: [liability], cyan: [equity], success: [revenue], yellow: [expense] }
+        debits: { label: Debits }
+        credits: { label: Credits }
+        balance: { label: Balance, color: { danger: ["<0"] } }

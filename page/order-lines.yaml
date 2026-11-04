@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=./page-schema-1.json
+# Also sets the columns of the "Lines" tab on Sales orders and the "Sales lines" tab on Products.
+title: Sales order lines
+body:
+  - kind: binder
+    name: order_lines
+    observe: sales_order_line
+    params:
+      default_sort: { column: sales_order.number, direction: desc }
+      filter: [product, sales_order, ">amount"]
+      columns:
+        sales_order.number: { label: Order, width: 90 }
+        product.sku: { label: SKU, width: 90 }
+        product.name: { label: Product, width: 220 }
+        qty: { label: Qty }
+        unit_price: { label: Unit price }
+        discount_pct: { label: Discount %, color: { muted: ["0"] } }
+        amount: { label: Amount }

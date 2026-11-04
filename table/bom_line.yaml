@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Bill of materials: what one unit of a finished product consumes.
+datasource: surrealdb
+title: Bill of materials
+columns:
+  id: { type: string, flags: [id] }
+  product: { type: string, label: Product, flags: [mandatory], references: { table: product, kind: has_one, name: product } }
+  product.name: { type: string, label: Product }
+  component: { type: string, label: Component, flags: [mandatory], references: { table: product, kind: has_one, name: component } }
+  component.name: { type: string, label: Component, flags: [title] }
+  component.uom: { type: string, label: Unit }
+  qty: { type: int, label: Qty per unit, flags: [mandatory] }
+  cost: { type: int, label: Cost per unit, unit: { currency: "$", minor_units: true }, expr: 'surreal::expr("qty * component.cost_price")' }

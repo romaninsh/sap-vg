@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Top 8 customers by invoiced revenue over the last 12 months.
+datasource: surrealdb
+title: Top customers
+columns:
+  id: { type: string, flags: [id] }
+  customer: { type: string, label: Customer, flags: [title] }
+  display: { type: string, label: Revenue }
+  bar_pct: { type: int, label: Relative }
+surreal:
+  rhai: |
+    let grouped = surreal::select()
+        .expression(surreal::expr("customer.name").alias("customer"))
+        .expression(surreal::expr("math::sum(amount)").alias("amount"))
+        .from("invoice")
+        .where(surreal::expr("status = 'issued' AND issued_on > time::now() - 365d"))
+        .group_by(surreal::ident("customer"));
+    surreal::select()
+        .from(grouped.subquery())
+        .expression(surreal::fx("type::record", [surreal::expr("'top_customers'"), surreal::ident("customer")]).alias("id"))
+        .field("customer")
+        .field("amount")
+        .expression(surreal::expr("fn::usd(amount)").alias("display"))
+        .expression(surreal::expr("<int> math::round(amount * 100 / math::max((SELECT VALUE total FROM (SELECT customer, math::sum(amount) AS total FROM invoice WHERE status = 'issued' AND issued_on > time::now() - 365d GROUP BY customer))))").alias("bar_pct"))
+        .order_by(surreal::ident("amount"), "desc")
+        .limit(8, 0)

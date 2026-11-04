@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Employees
+body:
+  - kind: binder
+    name: employees
+    observe: employee
+    params:
+      default_sort: { column: name, direction: asc }
+      filter: [department, status, manager, "~title"]
+      columns:
+        name: { label: Name, pin: true, width: 180 }
+        title: { label: Job title, width: 200 }
+        department.name: { label: Department }
+        manager.name: { label: Manager }
+        email: { label: Email, width: 240 }
+        phone: { label: Phone }
+        hired_on: { label: Hired }
+        years: { label: Years }
+        status:
+          label: Status
+          labels: { active: Active, on_leave: On leave, terminated: Left }
+          color: { success: [active], warning: [on_leave], muted: [terminated] }
+        salary: { label: Salary }
+      row_actions:
+        - label: History
+          icon: Clock
+          navigate: history
+          args: { col: '"employee"', id: row.id, number: row.name }
+        - label: Copy email
+          icon: Copy
+          copy: email

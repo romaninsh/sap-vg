@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=./action-schema-1.json
+# args: the values from department-form. Returns #{ id } of the new department.
+kind: script
+body: |
+  let d = #{ name: args.name, cost_center: args.cost_center ?? "", parent: args.parent };
+  if args.head != () { d.head = args.head; }
+  if args.budget_dollars != () { d.budget = (args.budget_dollars * 100.0).round().to_int(); }
+  let id = table("department").insert(d);
+  notify(`Department ${args.name} created`);
+  #{ id: "department:" + id }

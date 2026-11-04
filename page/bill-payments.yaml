@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=./page-schema-1.json
+title: Supplier payments
+body:
+  - kind: binder
+    name: bill_payments
+    observe: bill_payment
+    params:
+      allow_add: false
+      default_sort: { column: paid_on, direction: desc }
+      filter: [">=paid_on", ">amount"]
+      columns:
+        paid_on: { label: Paid }
+        bill.number: { label: Bill, width: 110 }
+        bill.supplier.name: { label: Supplier, width: 220 }
+        amount: { label: Amount }
+        method: { label: Method, labels: { bank_transfer: Bank transfer, card: Card, cheque: Cheque, cash: Cash } }

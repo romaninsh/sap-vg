@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=./table-schema-1.json
+datasource: surrealdb
+title: Leave requests
+columns:
+  id: { type: string, flags: [id] }
+  employee: { type: string, label: Employee, flags: [mandatory], references: { table: employee, kind: has_one, name: employee } }
+  employee.name: { type: string, label: Employee, flags: [title] }
+  kind: { type: string, label: Type, enum: [vacation, sick, personal, parental] }
+  starts_on: { type: date, label: From, flags: [mandatory] }
+  ends_on: { type: date, label: To, flags: [mandatory] }
+  days: { type: int, label: Days }
+  status: { type: string, label: Status, enum: [pending, approved, rejected] }
+  requested_on: { type: date, label: Requested }
+  note: { type: string, label: Note }

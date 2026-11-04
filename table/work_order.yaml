@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=./table-schema-1.json
+# Completing (status → done) consumes the bill of materials and stocks the finished goods (tests/schema.surql).
+datasource: surrealdb
+title: Work orders
+columns:
+  id: { type: string, flags: [id] }
+  number: { type: string, label: Work order, flags: [title, searchable] }
+  product: { type: string, label: Product, flags: [mandatory], references: { table: product, kind: has_one, name: product } }
+  product.name: { type: string, label: Product }
+  qty: { type: int, label: Qty, flags: [mandatory] }
+  warehouse: { type: string, label: Warehouse, references: { table: warehouse, kind: has_one, name: warehouse } }
+  warehouse.code: { type: string, label: Warehouse }
+  start_on: { type: date, label: Start }
+  due_on: { type: date, label: Due }
+  # Set by the database when the work order completes (wo_done event); kept out of forms.
+  completed_on: { type: date, label: Completed, flags: [calculated] }
+  status: { type: string, label: Status, enum: [planned, released, in_progress, done, cancelled] }
+  material_cost: { type: int, label: Material cost, unit: { currency: "$", minor_units: true },
+                   expr: 'surreal::expr("qty * math::sum((SELECT VALUE qty * component.cost_price FROM bom_line WHERE product = $parent.product))")' }
+  late: { type: bool, label: Late, expr: 'surreal::expr("status INSIDE [''planned'', ''released'', ''in_progress''] AND due_on < time::floor(time::now(), 1d)")' }

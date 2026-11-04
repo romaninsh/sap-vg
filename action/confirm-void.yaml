@@ -1,0 +1,7 @@
+# yaml-language-server: $schema=./action-schema-1.json
+kind: confirm
+dialog:
+  title: "Void ${row.number}?"
+  description: "Voiding reverses the ledger posting. A void document can't be restored."
+  confirm_label: Void document
+  confirm_style: danger
