@@ -70,6 +70,17 @@ and `action/`.
 
 ![Desktop cockpit](docs/screenshots/desktop-cockpit.png)
 
+## How it fits together
+
+![Vantage UI deploys vantage-server (sap-vg-admin on Cloud Run), which serves the React web admin and the WebSocket API; vantage-server uses SurrealDB, which holds the data and the business rules](docs/architecture.svg)
+
+- **The app** is a Vantage project: tables, pages and actions in YAML, built in Vantage UI by
+  its LLM agent. The desktop app runs from the same folder.
+- **In production** it runs on `vantage-server`, the server Vantage UI runs locally, as the
+  Cloud Run service `sap-vg-admin`. It serves the web admin and the WebSocket API it talks to.
+- **SurrealDB** holds the data and the business rules (document numbers, ledger postings, stock
+  moves, guards), so they hold for every client.
+
 ## Layout
 
 | Path | What |
