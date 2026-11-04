@@ -1,5 +1,16 @@
 # Northwind ERP
 
+> hi so i want to build a massive ERP system lots of features - comparable to leading ERP
+> competition - do it please - use your own judgement. i want all the essentials in and then
+> any custom components can be introduced later. take inspiration from SAP, but make it
+> user-friendly.
+
+How it was made:
+
+1. Download Vantage.
+2. Ask its agent for the whole SAP suite, in the words above.
+3. About 30 minutes later: a desktop app, a web admin and a live URL.
+
 An ERP that SAP users will recognise, built to be easier to use. It covers sales, CRM,
 purchasing, inventory, production, finance and HR for a made-up company, Northwind
 Manufacturing, and comes loaded with a year of sample data.
