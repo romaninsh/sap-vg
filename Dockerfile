@@ -20,7 +20,7 @@ COPY api /app/project/api
 COPY action /app/project/action
 # The web admin calls the desktop pages' row actions (Confirm order, Ship order, …): they live in page/.
 COPY page /app/project/page
-COPY policy /app/project/policy
+# Add `COPY policy /app/project/policy` once policy/ holds a policy of our own.
 COPY --from=web /app/out /app/web
 ENV VANTAGE_API=${API}
 CMD ["--static", "/app/web"]

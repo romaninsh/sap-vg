@@ -164,6 +164,15 @@ DEFINE EVENT OVERWRITE je_guard ON TABLE journal_entry WHEN $event = "UPDATE" AN
     LET $c = math::sum((SELECT VALUE credit FROM journal_line WHERE entry = $after.id));
     IF $d != $c OR $d = 0 { THROW "Entry " + $after.number + " doesn't balance: debits " + <string>$d + " ≠ credits " + <string>$c; };
 };
+DEFINE EVENT OVERWRITE je_locked ON TABLE journal_entry WHEN $event = "UPDATE" AND $before.status = "posted" AND ($after.status != "posted" OR $after.posted_on != $before.posted_on) THEN {
+    THROW "Entry " + $before.number + " is posted and can't be changed; post a reversing entry instead";
+};
+-- The lines of a posted entry are locked too, or the ledger would stop balancing.
+DEFINE EVENT OVERWRITE jl_locked ON TABLE journal_line WHEN $event IN ["CREATE", "UPDATE", "DELETE"] THEN {
+    IF $before.entry.status = "posted" OR $after.entry.status = "posted" {
+        THROW "Lines of a posted entry can't be changed; post a reversing entry instead";
+    };
+};
 DEFINE EVENT OVERWRITE je_cascade ON TABLE journal_entry WHEN $event = "DELETE" THEN {
     IF $before.status = "posted" { THROW "Posted entries can't be deleted; post a reversing entry instead"; };
     DELETE journal_line WHERE entry = $before.id;
