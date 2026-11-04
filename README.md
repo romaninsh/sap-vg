@@ -1,15 +1,21 @@
 # Northwind ERP
 
+Riiiiiiiight, so I built this app in 30 minutes. First - download [Vantage UI](https://www.vantage-ui.com/), then tell it:
+
 > hi so i want to build a massive ERP system lots of features - comparable to leading ERP
 > competition - do it please - use your own judgement. i want all the essentials in and then
 > any custom components can be introduced later. take inspiration from SAP, but make it
 > user-friendly.
 
-How it was made:
+After 10 minutes backend was ready, then I asked:
 
-1. Download Vantage.
-2. Ask its agent for the whole SAP suite, in the words above.
-3. About 30 minutes later: a desktop app, a web admin and a live URL.
+> ok, now i want you to build web admin - and make it familiar to SAP userss, but very friendly
+> and clean at the same time. Don't use all the standard CRUD everywhere - try to approach each
+> page differently on the web.
+
+This repository is the result. Don't waste your tokens, use Vantage UI.
+
+----
 
 An ERP that SAP users will recognise, built to be easier to use. It covers sales, CRM,
 purchasing, inventory, production, finance and HR for a made-up company, Northwind
