@@ -452,7 +452,11 @@ for sup, k, qty in (("s05", "fab", 600), ("s09", "mot", 80), ("s12", "lmp", 200)
     purchases.append(dict(number=f"PO-{po_n}", key=f"po{po_n}", sup=sup, day=TODAY - timedelta(days=1), rec=None,
                           status="draft", lines=[(k, qty, P[k]["cost"])], buyer=R.choice(buyers)))
     po_n += 1
-purchases[len(purchases) // 2]["status"] = "cancelled"
+# the cancelled one is a duplicate of a planned order, so no material the work orders need goes missing
+dup = purchases[len(purchases) // 2]
+purchases.append(dict(dup, number=f"PO-{po_n}", key=f"po{po_n}", day=workday(dup["day"] + timedelta(days=1)),
+                      status="cancelled"))
+po_n += 1
 
 for p in purchases:
     emit(f"CREATE purchase_order:{p['key']} SET number={q(p['number'])}, supplier=supplier:{p['sup']}, warehouse=warehouse:main, "
