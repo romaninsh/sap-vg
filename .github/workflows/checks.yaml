@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SERVER_IMAGE: romaninsh/vantage-server:1.10
+  SERVER_IMAGE: romaninsh/vantage-server:1.12.2
 
 jobs:
   web:
@@ -96,9 +96,7 @@ jobs:
         run: |
           # the ci profile's env file (application.yaml); the runner is thrown away after the job
           printf '%s\n' "SECRET_SURREAL_URL=cbor://root:root@127.0.0.1:8000" SURREAL_NS=app SURREAL_DB=app > .env.ci
-          # RUST_MIN_STACK: with the default thread stacks, vantage-server 1.10 aborts at startup on
-          # this project ("stack overflow"); the deploy sets the same (deploy-admin.yaml)
-          docker run -d --name vantage --network host -e RUST_MIN_STACK=67108864 \
+          docker run -d --name vantage --network host \
             -v "$PWD:/app/project:ro" -v "$PWD/web/admin/dist:/app/web:ro" \
             -e VANTAGE_API=admin -e VANTAGE_PROFILE=ci \
             "$SERVER_IMAGE" --static /app/web

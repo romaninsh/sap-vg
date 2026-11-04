@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 # One API of this project with its web frontend on vantage-server:
 #   docker build --platform linux/amd64 --build-arg API=admin -t admin .
-ARG WEB_DEV=romaninsh/vantage-web-dev:1.10
-ARG SERVER=romaninsh/vantage-server:1.10
+ARG WEB_DEV=romaninsh/vantage-web-dev:1.12.2
+ARG SERVER=romaninsh/vantage-server:1.12.2
 
 # The built site is plain files, so this stage runs natively even when the image is for another platform.
 FROM --platform=$BUILDPLATFORM ${WEB_DEV} AS web

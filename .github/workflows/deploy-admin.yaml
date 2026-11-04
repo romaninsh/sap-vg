@@ -75,7 +75,7 @@ jobs:
             --service-account "sap-vg-runtime@$PROJECT.iam.gserviceaccount.com" \
             --min-instances 0 --max-instances 1 --concurrency 1000 --cpu 1 --memory 512Mi --cpu-boost --timeout 3600 \
             --network default --subnet default --vpc-egress all-traffic \
-            --set-env-vars "VANTAGE_PROFILE=prod,SURREAL_NS=erp,SURREAL_DB=erp,RUST_MIN_STACK=67108864" \
+            --set-env-vars "VANTAGE_PROFILE=prod,SURREAL_NS=erp,SURREAL_DB=erp" \
             --set-secrets "SECRET_SURREAL_URL=sap-vg-surreal-url:latest" \
             --startup-probe httpGet.path=/v1/ready,httpGet.port=8080,periodSeconds=2,timeoutSeconds=1,failureThreshold=60
 
