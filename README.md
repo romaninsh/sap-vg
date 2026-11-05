@@ -21,10 +21,6 @@ An ERP that SAP users will recognise, built to be easier to use. It covers sales
 purchasing, inventory, production, finance and HR for a made-up company, Northwind
 Manufacturing, and comes loaded with a year of sample data.
 
-It is a [Vantage](https://github.com/romaninsh/vantage) project. A desktop app is built from
-the YAML in this folder, and the web admin is a React app on the same data. The data lives in
-SurrealDB, which also enforces the business rules.
-
 **Live demo: https://sap-vg-admin-129027965449.europe-west2.run.app**
 
 > The demo has no sign-in, so anyone with the link can read the data and change it. Treat
