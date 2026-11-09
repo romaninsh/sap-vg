@@ -3,6 +3,7 @@ import { NavLink, Link, Outlet } from "react-router";
 import { observer, useConnection } from "@vantage-ui/client/react";
 import { useDb } from "./db";
 import { Avatar, useCount } from "./ui";
+import { openAbout } from "./Splash";
 
 const AREAS = [
   { to: "/sales", label: "Sales" },
@@ -46,6 +47,7 @@ export const Shell = observer(() => {
           <span className={`dot${status === "open" ? "" : " off"}`} />{status === "open" ? "Live" : "Reconnecting…"}
         </span>
         <InboxLink />
+        <button type="button" className="btn ghost" title="About this demo" aria-label="About this demo" onClick={openAbout}>ⓘ About</button>
         <Avatar name="Office Admin" />
       </header>
       <Outlet />

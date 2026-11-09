@@ -52,6 +52,12 @@ everywhere. There's a Fiori-style launchpad, a list report with infinite scroll 
 done on the server, object pages, a kanban board, an aging view, a stock card grid, a Gantt
 timeline, financial statements and an org chart.
 
+A browser session opens on a splash (`web/admin/src/Splash.tsx`): "Northwind ERP", a demo built
+with VantageUI 1.12.3, the two messages quoted above, and how it was built, in measured numbers
+kept in `web/admin/src/about.ts`. Refresh them with `scripts/session_stats.py <session log>`
+and the file and test counts listed at the top of `about.ts`; never by hand. "About" in the
+shell bar opens it again, at `/about`.
+
 | | |
 |---|---|
 | ![Sales order](docs/screenshots/web-sales-order.png) | ![Sales orders](docs/screenshots/web-sales-orders.png) |
@@ -88,6 +94,7 @@ and `action/`.
 | `api/admin.yaml` | The API the web admin uses: 28 entities over a WebSocket |
 | `web/admin/` | The web admin (React, Vite, `@vantage-ui/client`) |
 | `tests/` | Schema, seed generator, loader, invariants, DB copy tool, WebSocket probe |
+| `scripts/session_stats.py` | Measures the agent's build session for the splash's numbers |
 | `bench/`, `docs/benchmark.md` | Query benchmark: SurrealDB against other databases |
 | `FEEDBACK.md` | Limits we hit in Vantage and SurrealDB, with measurements |
 | `terraform/` | Deploy identity, secret and Cloud Run service (applied from `vantage-terraform`) |

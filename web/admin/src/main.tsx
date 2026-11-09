@@ -6,6 +6,7 @@ import { VantageProvider } from "@vantage-ui/client/react";
 import { schema, type Schema } from "./vantage.gen";
 import { ConnectionGate } from "./ConnectionGate";
 import { Shell } from "./Shell";
+import { Splash } from "./Splash";
 import { ToastHost } from "./ui";
 import { Launchpad } from "./pages/Launchpad";
 import { SalesOrders } from "./pages/SalesOrders";
@@ -25,6 +26,8 @@ const db = createVantage<Schema>({ schema });
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
+    {/* in front of everything, the "Connecting…" screen included */}
+    <Splash />
     <VantageProvider db={db} fallback={<ConnectionGate />}>
       <ConnectionGate>
         <ToastHost>
@@ -47,6 +50,8 @@ createRoot(document.getElementById("root")!).render(
                 <Route path="/finance" element={<Statements />} />
                 <Route path="/finance/journal" element={<Journal />} />
                 <Route path="/people" element={<People />} />
+                {/* the About splash (Splash.tsx) shows over the launchpad at /about */}
+                <Route path="/about" element={<Launchpad />} />
                 <Route path="*" element={<main className="page"><p className="muted">Page not found. <a href="/">Back to the launchpad</a></p></main>} />
               </Route>
             </Routes>
