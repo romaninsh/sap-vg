@@ -285,3 +285,71 @@ input, select, textarea { font: inherit; color: inherit; }
 .hbar .fill { height: 100%; border-radius: 6px; }
 .hbar.click { cursor: pointer; }
 .hbar.click:hover .track { outline: 2px solid var(--brand-soft); }
+
+/* ── Splash (Splash.tsx) ──
+   Vantage's dark ground (vantage-ui.com) with this app's Fiori blue and its logo's teal as accents. */
+.splash { --s-bg: #0b0d12; --s-surface: #121722; --s-surface-2: #182030; --s-line: rgba(255, 255, 255, 0.08);
+  --s-text: #eceff4; --s-text-2: #a3adbd; --s-text-3: #6f7a8c; --s-accent: #0070f2; --s-accent-2: #4da3ff; --s-accent-3: #9cc9ff; --s-teal: #00a6a3;
+  position: fixed; inset: 0; z-index: 90; overflow-y: auto; scrollbar-gutter: stable both-edges;
+  background: var(--s-bg); color: var(--s-text-2); font-size: 15px; animation: splash-in .25s ease-out;
+  background-image: radial-gradient(900px 520px at 80% -10%, rgba(0, 112, 242, 0.22), transparent 65%),
+                    radial-gradient(700px 480px at 0% 110%, rgba(0, 166, 163, 0.14), transparent 60%); }
+@keyframes splash-in { from { opacity: 0; } }
+@keyframes splash-rise { from { opacity: 0; transform: translateY(8px); } }
+.splash-frame { min-height: 100%; display: flex; align-items: center; justify-content: center; padding: clamp(16px, 4vw, 32px); }
+/* no transform animation on the card: it is several screens tall, and scaling it paints the whole card into one layer */
+.splash-card { width: 100%; max-width: 1040px; padding: clamp(24px, 4vw, 36px); border-radius: 18px; border: 1px solid var(--s-line);
+  background: var(--s-surface); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45); }
+.splash-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; }
+.splash-logo { height: 26px; width: auto; filter: invert(1); }
+.splash-kicker { margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; font-weight: 500;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--s-accent-2); }
+.splash-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; margin-top: 26px; }
+@media (max-width: 1000px) { .splash-hero { grid-template-columns: minmax(0, 1fr); gap: 32px; } }
+.splash-intro { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.splash-intro p { margin: 0; line-height: 1.6; }
+.splash-brand { display: flex; align-items: center; gap: 14px; }
+.splash-brand .logo-mark { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #0070f2, #00a6a3);
+  color: #fff; display: grid; place-items: center; font-size: 21px; font-weight: 700; flex: none; }
+.splash h1 { font-size: 36px; font-weight: 700; letter-spacing: -0.025em; color: var(--s-text); }
+.splash .splash-tagline { font-size: 21px; font-weight: 300; color: var(--s-accent-3); margin-top: -4px; }
+.splash .splash-lead { color: var(--s-text); font-size: 16px; }
+.splash-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: auto; padding-top: 8px; }
+.splash-primary, .splash-outline { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 20px; border-radius: var(--radius-sm);
+  font-weight: 600; cursor: pointer; transition: background .15s, border-color .15s; }
+.splash-primary { border: 0; background: var(--s-accent); color: #fff; box-shadow: 0 0 0 1px rgba(77, 163, 255, 0.35), 0 4px 24px -8px rgba(0, 112, 242, 0.6); }
+.splash-primary:hover { background: #1a82ff; }
+.splash-primary:focus-visible { outline: 2px solid var(--s-accent-3); outline-offset: 2px; }
+.splash-outline { border: 1px solid rgba(255, 255, 255, 0.16); color: var(--s-text); }
+.splash-outline:hover { border-color: rgba(77, 163, 255, 0.6); background: rgba(0, 112, 242, 0.1); text-decoration: none; }
+.splash-jump { align-self: flex-start; border: 0; background: none; padding: 0; cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--s-accent-3); }
+.splash-jump:hover { text-decoration: underline; }
+.splash-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: center; margin: 0; min-width: 0; }
+@media (max-width: 420px) { .splash-stats { grid-template-columns: minmax(0, 1fr); } }
+.splash-stat { padding: 14px 16px; border-radius: 12px; border: 1px solid var(--s-line); background: var(--s-surface-2); animation: splash-rise .3s ease-out backwards; }
+.splash-stat dd { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.01em; color: var(--s-text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.splash-stat dt { margin-top: 2px; font-size: 13px; font-weight: 600; color: var(--s-accent-3); }
+.splash-stat p { margin: 2px 0 0; font-size: 12px; line-height: 1.35; color: var(--s-text-3); }
+.splash-prompts { margin-top: 36px; }
+.splash-quotes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+@media (max-width: 760px) { .splash-quotes { grid-template-columns: minmax(0, 1fr); } }
+.splash-quotes figure { margin: 0; padding: 16px 18px; border-radius: 12px; background: var(--s-surface-2); border: 1px solid var(--s-line);
+  border-left: 3px solid var(--s-teal); display: flex; flex-direction: column; gap: 10px; }
+.splash-quotes blockquote { margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13.5px; line-height: 1.6; color: var(--s-text); }
+.splash-quotes figcaption { margin-top: auto; font-size: 12px; color: var(--s-text-3); }
+.splash-compare { margin-top: 44px; padding-top: 30px; border-top: 1px solid var(--s-line); scroll-margin-top: 24px; }
+.splash-compare h2 { margin-top: 8px; font-size: 24px; letter-spacing: -0.02em; color: var(--s-text); }
+.splash-compare ol { list-style: none; margin: 22px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .splash-compare ol { grid-template-columns: minmax(0, 1fr); } }
+.splash-compare li { padding: 14px 16px; border-radius: 12px; border: 1px solid var(--s-line); background: var(--s-surface-2); }
+.splash-compare h3 { font-size: 15px; color: var(--s-text); }
+.splash-n { margin-right: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-weight: 400; color: var(--s-text-3); }
+.splash-compare li p { display: flex; gap: 8px; margin: 8px 0 0; font-size: 13.5px; line-height: 1.45; }
+.splash-compare .mark { flex: none; width: 14px; font-weight: 700; }
+.splash-compare .by-hand { color: var(--s-text-3); }
+.splash-compare .by-hand .mark { color: #f87171; }
+.splash-compare .by-hand b { font-weight: 600; color: var(--s-text-2); }
+.splash-compare .by-vantage { margin-top: 6px; color: var(--s-text); }
+.splash-compare .by-vantage .mark { color: #4ade80; }
+.splash-compare .by-vantage b { font-weight: 600; color: var(--s-accent-3); }
+.splash-compare code { padding: 1px 4px; border-radius: 4px; background: rgba(255, 255, 255, 0.06); font-size: .85em; }

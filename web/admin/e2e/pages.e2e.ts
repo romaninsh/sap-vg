@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 // Read-only tour of every screen against the live API: each page loads real rows from the server.
 // Nothing here writes, so the data is the same afterwards.
