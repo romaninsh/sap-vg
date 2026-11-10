@@ -20,8 +20,10 @@ import { Inventory } from "./pages/Inventory";
 import { Production } from "./pages/Production";
 import { Journal, Statements } from "./pages/Finance";
 import { People } from "./pages/People";
+import { initAnalytics } from "./analytics";
 import "./styles.css";
 
+initAnalytics();
 const db = createVantage<Schema>({ schema });
 
 createRoot(document.getElementById("root")!).render(

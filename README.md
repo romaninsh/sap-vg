@@ -58,6 +58,28 @@ kept in `web/admin/src/about.ts`. Refresh them with `scripts/session_stats.py <s
 and the file and test counts listed at the top of `about.ts`; never by hand. "About" in the
 shell bar opens it again, at `/about`.
 
+### Analytics
+
+The web admin reports to the vantage-ui.com GA4 property (`G-R3BJYDRX24`, content group
+`demo-erp`), from `web/admin/src/analytics.ts`. The tag loads only when the host is
+`erp.demo.vantage-ui.com`. Everywhere else, localhost and `*.run.app` included, `track()` logs
+`[ga] name params` to the console and sends nothing. Page views come from GA's enhanced
+measurement, which follows the router's History API changes, so the app sends none itself.
+
+| Event | Params | Fires when |
+|---|---|---|
+| `about_open` | `trigger`: `auto` or `link` | the splash opens on a first visit (`auto`), or from "About" in the shell bar or a load of `/about` (`link`) |
+| `outbound_click` | `link_url` | "Build your own" on the splash, to vantage-ui.com |
+| `demo_action` | `action`: `create_sales_order`, `confirm_order`, `move_opportunity` | a sales order is created, confirmed, or a pipeline card is dropped in a new stage, after the server accepts it |
+
+To add one, call `track()` where the thing has succeeded:
+
+```ts
+import { track } from "../analytics";
+
+if (await run(() => o.ship_order(), `${o.number} shipped`)) track("demo_action", { action: "ship_order" });
+```
+
 | | |
 |---|---|
 | ![Sales order](docs/screenshots/web-sales-order.png) | ![Sales orders](docs/screenshots/web-sales-orders.png) |
