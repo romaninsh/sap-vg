@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ABOUT } from "./about";
 import { COMPARISON } from "./comparison";
+import { track } from "./analytics";
 
 // The first thing a browser session sees: what this app is, that it was built as a demo for
 // Vantage UI, the two messages that started it, and how it was made, in measured numbers
@@ -16,8 +17,10 @@ const SEEN = "northwind.splash.seen";
 // closing goes back to it. Landing on /about directly (a refresh, a link) shows it over the
 // launchpad (main.tsx routes /about there); closing then goes to the launchpad.
 const ABOUT_PATH = "/about";
+let reported = false; // the splash shown on page load, counted once
 const atAbout = () => window.location.pathname === ABOUT_PATH;
 export const openAbout = () => {
+  track("about_open", { trigger: "link" });
   if (!atAbout()) window.history.pushState({ northwind_about: true }, "", ABOUT_PATH);
   window.dispatchEvent(new Event("northwind:about"));
 };
@@ -55,6 +58,9 @@ export function Splash() {
   const close = () => { sessionStorage.setItem(SEEN, "1"); setOpen(false); leaveAbout(); };
 
   useEffect(() => {
+    // once per page load (StrictMode runs this effect twice in development)
+    if (open && !reported) track("about_open", { trigger: atAbout() ? "link" : "auto" });
+    reported = true;
     const again = () => setOpen(true);
     // Back and Forward: arriving at /about opens it, leaving closes it
     const moved = () => setOpen(atAbout());
@@ -112,7 +118,8 @@ export function Splash() {
               <div className="splash-buttons">
                 <button ref={button} type="button" className="splash-primary" onClick={close}>Explore Demo <span aria-hidden>→</span></button>
                 {/* the site's outline button: to the Vantage UI download page */}
-                <a href="https://vantage-ui.com/download/" target="_blank" rel="noreferrer" className="splash-outline">
+                <a href="https://vantage-ui.com/download/" target="_blank" rel="noreferrer" className="splash-outline"
+                  onClick={() => track("outbound_click", { link_url: "https://vantage-ui.com/download/" })}>
                   Build your own <span aria-hidden>↗</span>
                 </a>
               </div>

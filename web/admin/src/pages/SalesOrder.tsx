@@ -4,6 +4,7 @@ import { observer, useCollection, useRecord, useWindow } from "@vantage-ui/clien
 import { useDb } from "../db";
 import type { SalesOrders } from "../vantage.gen";
 import { Dialog, Facet, Status, ago, date, money, useRunner } from "../ui";
+import { track } from "../analytics";
 
 /** "Object Page" floorplan: header with key figures and actions, the document flow, then sections. */
 export const SalesOrder = observer(() => {
@@ -59,7 +60,7 @@ const HeaderActions = observer(({ o }: { o: SalesOrders }) => {
   const can = (a: string) => o.$actions.includes(a as never);
   return (
     <div className="row">
-      {can("confirm_order") && <button className="btn primary" disabled={busy} onClick={() => run(() => o.confirm_order(), `${o.number} confirmed`)}>Confirm order</button>}
+      {can("confirm_order") && <button className="btn primary" disabled={busy} onClick={async () => { if (await run(() => o.confirm_order(), `${o.number} confirmed`)) track("demo_action", { action: "confirm_order" }); }}>Confirm order</button>}
       {can("ship_order") && <button className="btn primary" disabled={busy} onClick={() => run(() => o.ship_order(), `${o.number} shipped — stock issued`)}>Post goods issue</button>}
       {can("create_invoice") && <button className="btn primary" disabled={busy} onClick={() => run(() => o.create_invoice(), `Invoice created for ${o.number}`)}>Create invoice</button>}
       {(o.status === "draft" || o.status === "confirmed") && <button className="btn danger" onClick={() => setCancel(true)}>Cancel order</button>}

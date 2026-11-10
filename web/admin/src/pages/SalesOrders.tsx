@@ -5,6 +5,7 @@ import { useDb } from "../db";
 import { Page, SALES_TABS } from "../Shell";
 import { InfiniteTable, useSortParam, type Col } from "../InfiniteTable";
 import { Dialog, Status, date, money, num, useCount, useRunner } from "../ui";
+import { track } from "../analytics";
 import type { SalesOrders as SalesOrdersModel } from "../vantage.gen";
 
 /** "List Report" floorplan: variant tabs, a filter bar and a table that loads as you scroll; click a header to sort.
@@ -93,6 +94,7 @@ const CreateOrder = observer(({ onClose }: { onClose: () => void }) => {
       if (r.ok) id = r.value.id;
       return r;
     });
+    if (ok) track("demo_action", { action: "create_sales_order" });
     if (ok && id) nav(`/sales/orders/${encodeURIComponent(id)}`);
   };
   return (

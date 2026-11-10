@@ -3,6 +3,7 @@ import { observer, useCollection } from "@vantage-ui/client/react";
 import { useDb } from "../db";
 import { Page, SALES_TABS } from "../Shell";
 import { Avatar, date, money0, moneyShort, useRunner } from "../ui";
+import { track } from "../analytics";
 import type { Opportunities } from "../vantage.gen";
 
 const STAGES = [
@@ -39,7 +40,8 @@ const Lane = observer(({ s, dragging, setDragging }: { s: Stage; dragging: Oppor
     const o = dragging;
     setDragging(null);
     if (!o || o.stage === s.key) return;
-    void run(() => o.patch({ stage: s.key, probability: s.prob }), `${o.title} → ${s.label}`);
+    void run(() => o.patch({ stage: s.key, probability: s.prob }), `${o.title} → ${s.label}`)
+      .then((ok) => { if (ok) track("demo_action", { action: "move_opportunity" }); });
   };
   return (
     <div className={`lane${over ? " over" : ""}`} onDragOver={(e) => { e.preventDefault(); setOver(true); }} onDragLeave={() => setOver(false)} onDrop={(e) => { e.preventDefault(); drop(); }}>
