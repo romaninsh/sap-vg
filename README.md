@@ -119,7 +119,6 @@ and `action/`.
 | `scripts/session_stats.py` | Measures the agent's build session for the splash's numbers |
 | `bench/`, `docs/benchmark.md` | Query benchmark: SurrealDB against other databases |
 | `FEEDBACK.md` | Limits we hit in Vantage and SurrealDB, with measurements |
-| `terraform/` | Deploy identity, secret and Cloud Run service (applied from `vantage-terraform`) |
 
 ## Running it locally
 

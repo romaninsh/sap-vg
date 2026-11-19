@@ -1,6 +1,6 @@
 # The web admin (api/admin.yaml with web/admin on vantage-server, ./Dockerfile) to Cloud Run as
 # sap-vg-admin, on every merge to main that changes it. Auth: Workload Identity Federation as
-# github-sap-vg (vantage-terraform's module "sap_vg_gcp", from ./terraform); the database URL
+# github-sap-vg (vantage-terraform's module "sap_vg_gcp"); the database URL
 # comes from Secret Manager, never the image or this repository.
 name: deploy-admin
 
